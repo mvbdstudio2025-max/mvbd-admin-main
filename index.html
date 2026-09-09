@@ -1,2646 +1,3986 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <meta
-    name="viewport"
-    content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"
-  >
-
-  <meta name="theme-color" content="#030504">
-
-  <title>MVBD Admin</title>
+  <title>MVBD Admin Panel</title>
 
   <style>
-
-    /* =====================================================
-       MVBD ADMIN — CORE
-    ====================================================== */
-
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      -webkit-tap-highlight-color: transparent;
     }
 
     :root {
-      --bg: #030504;
-      --green: #27e87d;
-      --green2: #0aa957;
-      --white: #ffffff;
-      --muted: #89928d;
-      --glass: rgba(255,255,255,.055);
-      --border: rgba(255,255,255,.105);
+      --bg: #06100c;
+      --bg2: #0a1711;
+      --card: rgba(255,255,255,.055);
+      --card-hover: rgba(255,255,255,.085);
+      --border: rgba(255,255,255,.11);
+      --text: #f5f8f6;
+      --muted: #96a59d;
+      --green: #2ee879;
+      --green-light: #9affc2;
+      --red: #ff5969;
+      --yellow: #ffd15c;
     }
 
-    html,
     body {
-      width: 100%;
-      min-height: 100%;
-      background: var(--bg);
-      color: white;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 15% 0%, rgba(35,190,102,.22), transparent 32%),
+        radial-gradient(circle at 100% 100%, rgba(23,116,70,.18), transparent 35%),
+        var(--bg);
+      color: var(--text);
       font-family:
         Inter,
         -apple-system,
         BlinkMacSystemFont,
-        "SF Pro Display",
         "Segoe UI",
         sans-serif;
       overflow-x: hidden;
     }
 
-    body {
-      min-height: 100vh;
-    }
-
     button,
-    input {
+    input,
+    textarea,
+    select {
       font: inherit;
     }
 
     button {
-      border: 0;
       cursor: pointer;
     }
 
-
-    /* =====================================================
-       GLOBAL BACKGROUND
-    ====================================================== */
-
-    .mvbd-bg {
-      position: fixed;
-      inset: 0;
-      overflow: hidden;
-      pointer-events: none;
-      background:
-        radial-gradient(
-          circle at 50% 15%,
-          rgba(22, 206, 104, .12),
-          transparent 32%
-        ),
-        radial-gradient(
-          circle at 15% 90%,
-          rgba(0, 126, 70, .10),
-          transparent 35%
-        ),
-        #030504;
+    .hidden {
+      display: none !important;
     }
 
-    .mvbd-grid {
-      position: absolute;
-      inset: -50%;
-      opacity: .13;
-      transform: perspective(600px) rotateX(65deg);
-      background-image:
-        linear-gradient(
-          rgba(255,255,255,.045) 1px,
-          transparent 1px
-        ),
-        linear-gradient(
-          90deg,
-          rgba(255,255,255,.045) 1px,
-          transparent 1px
-        );
-      background-size: 48px 48px;
-      animation: gridMove 18s linear infinite;
+    /* =========================
+       GLASS
+    ========================= */
+
+    .glass {
+      background: var(--card);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      box-shadow:
+        0 20px 70px rgba(0,0,0,.35),
+        inset 0 1px rgba(255,255,255,.035);
     }
 
-    @keyframes gridMove {
-      from {
-        transform:
-          perspective(600px)
-          rotateX(65deg)
-          translateY(0);
-      }
+    /* =========================
+       LOGIN
+    ========================= */
 
-      to {
-        transform:
-          perspective(600px)
-          rotateX(65deg)
-          translateY(48px);
-      }
-    }
-
-
-    .light-orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(80px);
-      opacity: .35;
-    }
-
-    .orb-a {
-      width: 240px;
-      height: 240px;
-      background: #0ca95a;
-      top: -100px;
-      left: -90px;
-      animation: floatA 9s ease-in-out infinite;
-    }
-
-    .orb-b {
-      width: 190px;
-      height: 190px;
-      background: #19e477;
-      right: -80px;
-      bottom: 8%;
-      opacity: .18;
-      animation: floatB 11s ease-in-out infinite;
-    }
-
-    @keyframes floatA {
-      50% {
-        transform: translate(70px, 100px) scale(1.2);
-      }
-    }
-
-    @keyframes floatB {
-      50% {
-        transform: translate(-80px, -60px) scale(1.15);
-      }
-    }
-
-
-    /* =====================================================
-       LOCK SCREEN
-    ====================================================== */
-
-    #lockScreen {
-      position: relative;
-      z-index: 10;
+    #pinScreen {
       min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 25px;
-      transition:
-        opacity .7s ease,
-        transform .8s cubic-bezier(.2,.8,.2,1),
-        visibility .7s;
-    }
-
-    #lockScreen.unlocked {
-      opacity: 0;
-      transform: scale(1.08);
-      visibility: hidden;
-      pointer-events: none;
-    }
-
-
-    /* =====================================================
-       UNIQUE MVBD LOGIN CARD
-    ====================================================== */
-
-    .login-card {
-      width: min(420px, 100%);
-      position: relative;
-      padding: 38px 28px 30px;
-      border-radius: 36px;
-
-      background:
-        linear-gradient(
-          145deg,
-          rgba(255,255,255,.10),
-          rgba(255,255,255,.025)
-        );
-
-      border: 1px solid rgba(255,255,255,.12);
-
-      backdrop-filter: blur(32px) saturate(150%);
-      -webkit-backdrop-filter: blur(32px) saturate(150%);
-
-      box-shadow:
-        0 30px 90px rgba(0,0,0,.65),
-        inset 0 1px rgba(255,255,255,.10);
-
-      text-align: center;
-      overflow: hidden;
-    }
-
-
-    .login-card::before {
-      content: "";
-      position: absolute;
-      width: 280px;
-      height: 280px;
-      left: 50%;
-      top: -210px;
-      transform: translateX(-50%);
-
-      background: #20e778;
-      opacity: .14;
-      filter: blur(70px);
-      border-radius: 50%;
-    }
-
-
-    .login-card::after {
-      content: "";
-      position: absolute;
-      width: 180%;
-      height: 1px;
-      left: -40%;
-      top: 42%;
-      background:
-        linear-gradient(
-          90deg,
-          transparent,
-          rgba(255,255,255,.15),
-          transparent
-        );
-      transform: rotate(-12deg);
-    }
-
-
-    /* =====================================================
-       M LOGO
-    ====================================================== */
-
-    .hero-logo {
-      width: 92px;
-      height: 92px;
-      margin: 0 auto 22px;
-
-      position: relative;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      border-radius: 28px;
-
-      background:
-        linear-gradient(
-          145deg,
-          rgba(52,242,137,.95),
-          rgba(4,126,65,.72)
-        );
-
-      box-shadow:
-        0 0 0 1px rgba(255,255,255,.15),
-        0 18px 50px rgba(24,222,113,.25),
-        inset 0 1px rgba(255,255,255,.35);
-
-      transform: rotate(-4deg);
-
-      animation:
-        logoFloat 4s ease-in-out infinite;
-    }
-
-
-    .hero-logo::before {
-      content: "";
-      position: absolute;
-      inset: 2px;
-
-      border-radius: 26px;
-
-      background:
-        linear-gradient(
-          125deg,
-          rgba(255,255,255,.25),
-          transparent 40%
-        );
-    }
-
-
-    .hero-logo::after {
-      content: "";
-      position: absolute;
-      width: 50px;
-      height: 140%;
-      background: rgba(255,255,255,.20);
-      transform: rotate(30deg) translateX(-100px);
-      filter: blur(12px);
-      animation: logoShine 4s ease-in-out infinite;
-    }
-
-
-    .hero-m {
-      position: relative;
-      z-index: 2;
-
-      font-size: 55px;
-      font-weight: 900;
-      letter-spacing: -7px;
-      line-height: 1;
-
-      transform: skew(-8deg);
-
-      color: #03190d;
-
-      text-shadow:
-        0 1px rgba(255,255,255,.2);
-    }
-
-
-    @keyframes logoFloat {
-      0%,100% {
-        transform: rotate(-4deg) translateY(0);
-      }
-
-      50% {
-        transform: rotate(2deg) translateY(-7px);
-      }
-    }
-
-
-    @keyframes logoShine {
-      0%,
-      30% {
-        transform:
-          rotate(30deg)
-          translateX(-120px);
-      }
-
-      60%,
-      100% {
-        transform:
-          rotate(30deg)
-          translateX(170px);
-      }
-    }
-
-
-    /* =====================================================
-       BRAND
-    ====================================================== */
-
-    .brand {
-      position: relative;
-      z-index: 2;
-    }
-
-    .brand-title {
-      font-size: 27px;
-      font-weight: 800;
-      letter-spacing: -.8px;
-    }
-
-    .brand-title .green {
-      color: #27e87d;
-    }
-
-    .brand-title .white {
-      color: #fff;
-    }
-
-    .brand-subtitle {
-      margin-top: 7px;
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 3px;
-      color: #79827e;
-    }
-
-
-    /* =====================================================
-       WELCOME
-    ====================================================== */
-
-    .welcome {
-      position: relative;
-      z-index: 2;
-      margin-top: 34px;
-    }
-
-    .welcome h1 {
-      font-size: 25px;
-      font-weight: 750;
-      letter-spacing: -.7px;
-    }
-
-    .welcome p {
-      margin-top: 7px;
-      font-size: 13px;
-      color: #7f8883;
-    }
-
-
-    /* =====================================================
-       PIN DISPLAY
-    ====================================================== */
-
-    .pin-container {
-      position: relative;
-      z-index: 2;
-      margin-top: 28px;
-    }
-
-
-    .pin-display {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-    }
-
-
-    .pin-dot {
-      width: 14px;
-      height: 14px;
-
-      border-radius: 50%;
-
-      background: rgba(255,255,255,.08);
-
-      border: 1px solid rgba(255,255,255,.14);
-
-      transition:
-        transform .25s ease,
-        background .25s ease,
-        box-shadow .25s ease;
-    }
-
-
-    .pin-dot.active {
-      background: #27e87d;
-      border-color: #27e87d;
-
-      transform: scale(1.18);
-
-      box-shadow:
-        0 0 15px rgba(39,232,125,.6);
-    }
-
-
-    .pin-input {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      opacity: 0;
-      pointer-events: none;
-    }
-
-
-    /* =====================================================
-       NUMBER PAD
-    ====================================================== */
-
-    .number-pad {
-      position: relative;
-      z-index: 2;
-
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-
-      margin: 28px auto 0;
-
-      max-width: 285px;
+      place-items: center;
+      padding: 20px;
     }
 
+    .pin-card {
+      width: min(420px, 100%);
+      padding: 35px 28px;
+      border-radius: 32px;
+      text-align: center;
+      animation: cardIn .7s ease;
+    }
 
-    .number-key {
-      height: 57px;
+    @keyframes cardIn {
+      from {
+        opacity: 0;
+        transform: translateY(25px) scale(.97);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
 
-      border-radius: 18px;
-
-      color: white;
+    .admin-logo {
+      width: 78px;
+      height: 78px;
+      margin: auto;
+      border-radius: 25px;
+      display: grid;
+      place-items: center;
 
       background:
         linear-gradient(
-          145deg,
-          rgba(255,255,255,.075),
-          rgba(255,255,255,.025)
+          135deg,
+          var(--green),
+          var(--green-light)
         );
 
-      border: 1px solid rgba(255,255,255,.08);
+      color: #06100b;
+      font-size: 40px;
+      font-weight: 950;
 
       box-shadow:
-        inset 0 1px rgba(255,255,255,.05);
+        0 0 45px rgba(46,232,121,.28);
 
-      transition:
-        transform .12s ease,
-        background .2s ease,
-        border-color .2s ease;
+      animation: logoPulse 2.8s infinite ease-in-out;
     }
 
-
-    .number-key:active {
-      transform: scale(.91);
-
-      background:
-        rgba(39,232,125,.16);
-
-      border-color:
-        rgba(39,232,125,.45);
-    }
-
-
-    .number-key .number {
-      font-size: 20px;
-      font-weight: 650;
-    }
-
-
-    .number-key .letters {
-      display: block;
-      margin-top: 2px;
-
-      font-size: 7px;
-      letter-spacing: 2px;
-      color: #66706b;
-    }
-
-
-    .clear-key {
-      color: #87918b;
-    }
-
-
-    /* =====================================================
-       STATUS
-    ====================================================== */
-
-    .login-status {
-      position: relative;
-      z-index: 2;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-
-      margin-top: 25px;
-
-      color: #68736d;
-
-      font-size: 9px;
-      letter-spacing: 2px;
-      font-weight: 700;
-    }
-
-
-    .status-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #27e87d;
-      box-shadow: 0 0 10px #27e87d;
-
-      animation: statusPulse 1.8s infinite;
-    }
-
-
-    @keyframes statusPulse {
-      50% {
-        opacity: .35;
-        transform: scale(.7);
-      }
-    }
-
-
-    /* =====================================================
-       ERROR
-    ====================================================== */
-
-    .pin-error {
-      min-height: 18px;
-
-      margin-top: 9px;
-
-      color: #ff6575;
-
-      font-size: 11px;
-      font-weight: 600;
-
-      opacity: 0;
-      transform: translateY(-4px);
-
-      transition: .2s ease;
-    }
-
-
-    .pin-error.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-
-    .shake {
-      animation: shake .45s ease;
-    }
-
-
-    @keyframes shake {
+    @keyframes logoPulse {
       0%,100% {
-        transform: translateX(0);
-      }
-
-      20% {
-        transform: translateX(-12px);
-      }
-
-      40% {
-        transform: translateX(10px);
-      }
-
-      60% {
-        transform: translateX(-7px);
-      }
-
-      80% {
-        transform: translateX(5px);
-      }
-    }
-
-
-    /* =====================================================
-       UNLOCK ANIMATION
-    ====================================================== */
-
-    .login-card.success {
-      animation: unlockCard .85s cubic-bezier(.2,.8,.2,1) forwards;
-    }
-
-
-    @keyframes unlockCard {
-      0% {
         transform: scale(1);
       }
 
-      45% {
-        transform: scale(.96);
-      }
-
-      100% {
-        transform: scale(1.18);
-        opacity: 0;
+      50% {
+        transform: scale(1.045);
       }
     }
 
-
-    .unlock-flash {
-      position: fixed;
-      z-index: 100;
-
-      inset: 0;
-
-      background:
-        radial-gradient(
-          circle,
-          rgba(39,232,125,.32),
-          transparent 40%
-        );
-
-      opacity: 0;
-      pointer-events: none;
+    .pin-card h1 {
+      margin-top: 20px;
+      font-size: 27px;
     }
 
-
-    .unlock-flash.active {
-      animation: flash .95s ease forwards;
+    .pin-card p {
+      margin-top: 7px;
     }
 
+    .field {
+      width: 100%;
+      margin-top: 12px;
+      padding: 13px 15px;
 
-    @keyframes flash {
-      0% {
-        opacity: 0;
-      }
-
-      25% {
-        opacity: 1;
-      }
-
-      100% {
-        opacity: 0;
-      }
-    }
-
-
-    /* =====================================================
-       DASHBOARD
-    ====================================================== */
-
-    #dashboard {
-      position: relative;
-      z-index: 5;
-
-      min-height: 100vh;
-
-      opacity: 0;
-      visibility: hidden;
-
-      transform: translateY(30px) scale(.98);
-
-      transition:
-        opacity .8s ease,
-        transform .9s cubic-bezier(.2,.8,.2,1),
-        visibility .8s;
-    }
-
-
-    #dashboard.visible {
-      opacity: 1;
-      visibility: visible;
-      transform: none;
-    }
-
-
-    .dashboard-wrap {
-      width: min(1180px, 100%);
-      margin: auto;
-      padding: 25px 20px 110px;
-    }
-
-
-    /* =====================================================
-       DASHBOARD HEADER
-    ====================================================== */
-
-    .dash-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-
-      padding: 16px 18px;
-
+      border-radius: 15px;
       border: 1px solid var(--border);
-      border-radius: 25px;
 
-      background: rgba(255,255,255,.045);
+      background: rgba(0,0,0,.28);
+      color: var(--text);
 
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
+      outline: none;
+      transition: .2s;
     }
 
-
-    .dash-brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
+    .field:focus {
+      border-color: rgba(46,232,121,.65);
+      box-shadow: 0 0 0 3px rgba(46,232,121,.08);
     }
 
-
-    .dash-logo {
-      width: 43px;
-      height: 43px;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      border-radius: 14px;
+    .btn {
+      border: 0;
+      border-radius: 15px;
+      padding: 12px 16px;
 
       background:
         linear-gradient(
-          145deg,
-          #2bf18a,
-          #07924e
+          135deg,
+          var(--green),
+          var(--green-light)
         );
 
-      color: #03190d;
+      color: #06100b;
+      font-weight: 850;
 
-      font-size: 25px;
-      font-weight: 900;
-
-      box-shadow:
-        0 10px 30px rgba(39,232,125,.18);
+      transition: .2s;
     }
 
-
-    .dash-name {
-      font-size: 16px;
-      font-weight: 800;
+    .btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
     }
 
-
-    .dash-name span {
-      color: #27e87d;
-    }
-
-
-    .dash-label {
-      margin-top: 3px;
-
-      color: #68716d;
-
-      font-size: 8px;
-      letter-spacing: 1.7px;
-      font-weight: 700;
-    }
-
-
-    .firebase-pill {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-
-      padding: 9px 12px;
-
-      border-radius: 999px;
-
-      background: rgba(39,232,125,.07);
-
-      border: 1px solid rgba(39,232,125,.12);
-
-      color: #6f7b74;
-
-      font-size: 9px;
-    }
-
-
-    /* =====================================================
-       DASHBOARD HERO
-    ====================================================== */
-
-    .dash-hero {
-      margin-top: 25px;
-
-      padding: 30px;
-
-      border-radius: 30px;
-
-      background:
-        radial-gradient(
-          circle at 80% 0%,
-          rgba(39,232,125,.12),
-          transparent 35%
-        ),
-        rgba(255,255,255,.035);
-
+    .btn.secondary {
+      background: rgba(255,255,255,.055);
+      color: var(--text);
       border: 1px solid var(--border);
     }
 
-
-    .dash-kicker {
-      color: #27e87d;
-
-      font-size: 9px;
-      letter-spacing: 3px;
-      font-weight: 800;
+    .btn.danger {
+      background: rgba(255,89,105,.10);
+      color: #ff9ca6;
+      border: 1px solid rgba(255,89,105,.25);
     }
 
-
-    .dash-hero h1 {
-      margin-top: 9px;
-
-      font-size: clamp(32px, 6vw, 52px);
-      letter-spacing: -2px;
-      line-height: 1;
+    .btn.warning {
+      background: rgba(255,209,92,.10);
+      color: #ffe08b;
+      border: 1px solid rgba(255,209,92,.25);
     }
 
-
-    .dash-hero p {
-      margin-top: 12px;
-
-      color: #78827c;
+    .muted {
+      color: var(--muted);
       font-size: 13px;
     }
 
+    /* =========================
+       APP
+    ========================= */
 
-    /* =====================================================
-       STAT CARDS
-    ====================================================== */
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-
-      margin-top: 14px;
+    #app {
+      display: none;
+      min-height: 100vh;
+      padding-bottom: 105px;
     }
 
-
-    .stat {
-      padding: 20px;
-
-      min-height: 130px;
-
-      border-radius: 23px;
-
-      background: rgba(255,255,255,.045);
-
-      border: 1px solid var(--border);
-
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-
-      transition:
-        transform .25s ease,
-        border-color .25s ease;
-    }
-
-
-    .stat:hover {
-      transform: translateY(-4px);
-      border-color: rgba(39,232,125,.25);
-    }
-
-
-    .stat-icon {
-      font-size: 21px;
-    }
-
-
-    .stat-label {
-      display: block;
-
-      margin-top: 14px;
-
-      color: #717b75;
-
-      font-size: 10px;
-    }
-
-
-    .stat-value {
-      display: block;
-
-      margin-top: 3px;
-
-      font-size: 27px;
-      font-weight: 800;
-    }
-
-
-    /* =====================================================
-       CONTROL CARDS
-    ====================================================== */
-
-    .section-title {
-      margin-top: 32px;
-      margin-bottom: 13px;
-    }
-
-
-    .section-title span {
-      color: #69736e;
-
-      font-size: 8px;
-      letter-spacing: 3px;
-      font-weight: 800;
-    }
-
-
-    .section-title h2 {
-      margin-top: 5px;
-
-      font-size: 21px;
-      letter-spacing: -.6px;
-    }
-
-
-    .controls {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-    }
-
-
-    .control {
-      position: relative;
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
 
       display: flex;
+      justify-content: space-between;
       align-items: center;
 
-      gap: 14px;
+      padding: 15px 20px;
 
-      min-height: 105px;
-
-      padding: 18px;
-
-      color: white;
-      text-align: left;
-
-      border-radius: 23px;
-
-      background:
-        linear-gradient(
-          145deg,
-          rgba(255,255,255,.065),
-          rgba(255,255,255,.025)
-        );
-
-      border: 1px solid var(--border);
-
-      transition:
-        transform .2s ease,
-        border-color .2s ease,
-        background .2s ease;
-    }
-
-
-    .control:hover {
-      transform: translateY(-4px);
-
-      border-color:
-        rgba(39,232,125,.25);
-
-      background:
-        rgba(39,232,125,.06);
-    }
-
-
-    .control-icon {
-      width: 48px;
-      height: 48px;
-
-      flex-shrink: 0;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      border-radius: 16px;
-
-      background: rgba(39,232,125,.08);
-
-      font-size: 21px;
-    }
-
-
-    .control h3 {
-      font-size: 14px;
-      font-weight: 750;
-    }
-
-
-    .control p {
-      margin-top: 5px;
-
-      color: #69736e;
-
-      font-size: 10px;
-      line-height: 1.4;
-    }
-
-
-    .control-arrow {
-      margin-left: auto;
-
-      color: #5d6862;
-
-      font-size: 18px;
-    }
-
-
-    /* =====================================================
-       PAYMENT PANEL
-    ====================================================== */
-
-    .panel {
-      margin-top: 14px;
-
-      padding: 22px;
-
-      border-radius: 26px;
-
-      background: rgba(255,255,255,.04);
-
-      border: 1px solid var(--border);
+      background: rgba(6,16,12,.84);
+      border-bottom: 1px solid rgba(255,255,255,.08);
 
       backdrop-filter: blur(22px);
       -webkit-backdrop-filter: blur(22px);
     }
 
-
-    .panel-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 15px;
+    .brand {
+      font-weight: 900;
+      letter-spacing: .2px;
     }
 
-
-    .panel-head h2 {
-      font-size: 17px;
+    .brand span {
+      color: var(--green);
     }
 
-
-    .panel-head p {
-      margin-top: 5px;
-
-      color: #69736e;
-
-      font-size: 10px;
+    .connection {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 11px;
     }
 
-
-    .refresh {
-      padding: 9px 13px;
-
-      border-radius: 12px;
-
-      color: #9ca59f;
-
-      background: rgba(255,255,255,.06);
-
-      border: 1px solid rgba(255,255,255,.08);
+    main {
+      width: min(1200px, 100%);
+      margin: auto;
+      padding: 22px 18px;
     }
 
+    .view {
+      display: none;
+      animation: viewIn .35s ease;
+    }
 
-    .payment-list {
+    .view.active {
+      display: block;
+    }
+
+    @keyframes viewIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* =========================
+       DASHBOARD
+    ========================= */
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 13px;
       margin-top: 18px;
     }
 
+    .stat {
+      padding: 20px;
+      border-radius: 23px;
+    }
+
+    .stat small {
+      color: var(--muted);
+    }
+
+    .stat strong {
+      display: block;
+      margin-top: 8px;
+      font-size: 29px;
+    }
+
+    .dashboard-card {
+      margin-top: 16px;
+      padding: 19px;
+      border-radius: 24px;
+    }
+
+    .quick-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    /* =========================
+       HEAD
+    ========================= */
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+
+    .section-head .search {
+      max-width: 330px;
+      margin-top: 0;
+    }
+
+    /* =========================
+       TABLE
+    ========================= */
+
+    .table-card {
+      padding: 0;
+      overflow: hidden;
+      border-radius: 24px;
+    }
+
+    .table-scroll {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      min-width: 780px;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 13px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      font-size: 13px;
+      vertical-align: middle;
+    }
+
+    th {
+      color: #aebbb5;
+      font-weight: 700;
+      background: rgba(255,255,255,.025);
+    }
+
+    td {
+      color: #e7ece9;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.07);
+      font-size: 11px;
+    }
+
+    .pill.green {
+      color: #6ff0a2;
+      background: rgba(46,232,121,.10);
+    }
+
+    .pill.red {
+      color: #ff9ca5;
+      background: rgba(255,89,105,.10);
+    }
+
+    .pill.yellow {
+      color: #ffdc76;
+      background: rgba(255,209,92,.10);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .actions .btn {
+      padding: 7px 10px;
+      font-size: 12px;
+    }
 
     .empty {
-      padding: 40px 20px;
-
+      padding: 40px;
       text-align: center;
-
-      border-radius: 18px;
-
-      background: rgba(0,0,0,.12);
-
-      border: 1px dashed rgba(255,255,255,.08);
+      color: var(--muted);
     }
 
+    /* =========================
+       SETTINGS
+    ========================= */
 
-    .empty-icon {
-      font-size: 30px;
+    .settings-card {
+      padding: 20px;
+      border-radius: 24px;
+      margin-top: 15px;
     }
 
-
-    .empty h3 {
-      margin-top: 10px;
-
-      font-size: 14px;
-    }
-
-
-    .empty p {
-      margin-top: 5px;
-
-      color: #65706a;
-
-      font-size: 10px;
-    }
-
-
-    /* =====================================================
-       MOBILE NAV
-    ====================================================== */
-
-    .mobile-nav {
-      position: fixed;
-
-      z-index: 30;
-
-      left: 14px;
-      right: 14px;
-      bottom: 14px;
-
+    .form-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    label {
+      display: block;
+      color: #b9c5bf;
+      font-size: 13px;
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    /* =========================
+       MODAL
+    ========================= */
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+
+      display: none;
+      place-items: center;
+
+      padding: 17px;
+
+      background: rgba(0,0,0,.72);
+    }
+
+    .modal.show {
+      display: grid;
+    }
+
+    .modal-box {
+      width: min(650px, 100%);
+      max-height: 90vh;
+      overflow-y: auto;
+
+      padding: 21px;
+      border-radius: 27px;
+
+      animation: modalIn .25s ease;
+    }
+
+    @keyframes modalIn {
+      from {
+        opacity: 0;
+        transform: scale(.96) translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .modal-close {
+      float: right;
+    }
+
+    /* =========================
+       BOTTOM NAV
+    ========================= */
+
+    .bottom-nav {
+      position: fixed;
+      z-index: 50;
+
+      left: 50%;
+      bottom: 10px;
+
+      transform: translateX(-50%);
+
+      width: min(820px, calc(100% - 16px));
+
+      display: flex;
+      justify-content: space-around;
 
       padding: 8px;
 
-      border-radius: 23px;
-
-      background:
-        rgba(15,18,16,.78);
-
-      border: 1px solid rgba(255,255,255,.10);
-
-      backdrop-filter: blur(25px);
-      -webkit-backdrop-filter: blur(25px);
-
-      box-shadow:
-        0 20px 50px rgba(0,0,0,.5);
+      border-radius: 25px;
     }
-
 
     .nav-btn {
-      min-height: 48px;
-
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-
-      gap: 3px;
-
-      color: #59635e;
-
+      border: 0;
       background: transparent;
 
+      color: #96a39d;
+
+      padding: 8px 10px;
       border-radius: 16px;
 
-      font-size: 17px;
+      font-size: 10px;
+
+      min-width: 62px;
     }
 
-
-    .nav-btn small {
-      font-size: 7px;
-      letter-spacing: .5px;
+    .nav-btn b {
+      display: block;
+      margin-bottom: 3px;
+      font-size: 18px;
     }
-
 
     .nav-btn.active {
-      color: #27e87d;
-      background: rgba(39,232,125,.08);
+      color: #72efa4;
+      background: rgba(46,232,121,.10);
     }
 
+    /* =========================
+       TOAST
+    ========================= */
 
-    /* =====================================================
-       DESKTOP
-    ====================================================== */
+    #toast {
+      position: fixed;
+      z-index: 200;
 
-    @media (min-width: 800px) {
+      right: 17px;
+      bottom: 92px;
 
-      .mobile-nav {
-        display: none;
-      }
+      max-width: 320px;
 
-      .dashboard-wrap {
-        padding-bottom: 40px;
-      }
+      padding: 13px 16px;
 
+      border-radius: 15px;
+
+      background: #12251b;
+      border: 1px solid rgba(46,232,121,.28);
+
+      color: #e9fff1;
+
+      display: none;
     }
 
+    #toast.show {
+      display: block;
+      animation: toastIn .25s ease;
+    }
 
-    /* =====================================================
-       SMALL MOBILE
-    ====================================================== */
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
 
-    @media (max-width: 600px) {
-
-      .login-card {
-        padding: 34px 20px 25px;
-        border-radius: 32px;
+    @media(max-width: 800px) {
+      .stats {
+        grid-template-columns: 1fr 1fr;
       }
 
-      .hero-logo {
-        width: 82px;
-        height: 82px;
-        border-radius: 25px;
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media(max-width: 520px) {
+      main {
+        padding: 16px 12px;
       }
 
-      .hero-m {
-        font-size: 48px;
-      }
-
-      .brand-title {
-        font-size: 24px;
-      }
-
-      .welcome {
-        margin-top: 28px;
-      }
-
-      .number-pad {
-        max-width: 270px;
-      }
-
-      .number-key {
-        height: 55px;
-      }
-
-      .dashboard-wrap {
-        padding:
-          14px
-          14px
-          105px;
-      }
-
-      .dash-header {
-        padding: 13px;
-      }
-
-      .firebase-pill {
-        padding: 8px;
-      }
-
-      .firebase-pill span:last-child {
-        display: none;
-      }
-
-      .dash-hero {
-        padding: 24px 20px;
+      .topbar {
+        padding: 14px;
       }
 
       .stats {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .controls {
-        grid-template-columns: 1fr;
+        gap: 8px;
       }
 
       .stat {
-        min-height: 115px;
+        padding: 14px;
       }
 
+      .stat strong {
+        font-size: 23px;
+      }
+
+      .section-head {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .section-head .search {
+        max-width: none;
+      }
+
+      .bottom-nav {
+        bottom: 7px;
+      }
+
+      .nav-btn {
+        min-width: 44px;
+        padding: 7px 4px;
+      }
+
+      .nav-btn b {
+        font-size: 16px;
+      }
     }
-
-
-    @media (max-width: 350px) {
-
-      .number-pad {
-        gap: 7px;
-      }
-
-      .number-key {
-        height: 51px;
-      }
-
-      .pin-display {
-        gap: 9px;
-      }
-
-    }
-
   </style>
 </head>
 
-
 <body>
 
+<!-- =====================================================
+     PIN SCREEN
+===================================================== -->
 
-  <!-- ==================================================
-       BACKGROUND
-  =================================================== -->
+<section id="pinScreen">
 
-  <div class="mvbd-bg">
+  <div class="pin-card glass">
 
-    <div class="mvbd-grid"></div>
+    <div class="admin-logo">M</div>
 
-    <div class="light-orb orb-a"></div>
+    <h1>MVBD Admin Panel</h1>
 
-    <div class="light-orb orb-b"></div>
+    <p class="muted">
+      MoviesVerseBD Management Console
+    </p>
+
+    <input
+      id="pinInput"
+      class="field"
+      type="password"
+      inputmode="numeric"
+      autocomplete="off"
+      placeholder="Enter Admin PIN"
+    >
+
+    <button
+      id="enterAdmin"
+      class="btn"
+      style="width:100%;margin-top:12px"
+    >
+      Enter Admin Panel
+    </button>
+
+    <p
+      id="pinError"
+      class="muted"
+      style="color:#ff929d;margin-top:12px"
+    ></p>
 
   </div>
 
+</section>
 
 
-  <!-- ==================================================
-       UNLOCK FLASH
-  =================================================== -->
+<!-- =====================================================
+     ADMIN APP
+===================================================== -->
 
-  <div
-    id="unlockFlash"
-    class="unlock-flash"
-  ></div>
+<div id="app">
 
+  <header class="topbar">
 
-
-  <!-- ==================================================
-       LOCK SCREEN
-  =================================================== -->
-
-  <main id="lockScreen">
-
-
-    <section
-      id="loginCard"
-      class="login-card"
-    >
-
-
-      <!-- LOGO -->
-
-      <div class="hero-logo">
-
-        <span class="hero-m">
-          M
-        </span>
-
-      </div>
-
-
-      <!-- BRAND -->
+    <div>
 
       <div class="brand">
+        Movies<span>Verse</span>BD · Admin
+      </div>
 
-        <div class="brand-title">
+      <div
+        id="firebaseStatus"
+        class="connection"
+      >
+        Firebase connecting...
+      </div>
 
-          <span class="green">
-            MoviesVerse
-          </span>
+    </div>
 
-          <span class="white">
-            BD
-          </span>
+    <button
+      id="lockAdmin"
+      class="btn secondary"
+    >
+      Lock
+    </button>
 
+  </header>
+
+
+  <main>
+
+    <!-- ================= DASHBOARD ================= -->
+
+    <section
+      id="dashboard"
+      class="view active"
+    >
+
+      <h2>Dashboard</h2>
+
+      <p class="muted">
+        Realtime MVBD system overview
+      </p>
+
+      <div class="stats">
+
+        <div class="stat glass">
+          <small>Users</small>
+          <strong id="usersCount">0</strong>
         </div>
 
+        <div class="stat glass">
+          <small>Pending Payments</small>
+          <strong id="pendingCount">0</strong>
+        </div>
 
-        <div class="brand-subtitle">
-          ADMIN CONTROL CENTER
+        <div class="stat glass">
+          <small>Active Subscriptions</small>
+          <strong id="activeSubsCount">0</strong>
+        </div>
+
+        <div class="stat glass">
+          <small>Notifications</small>
+          <strong id="notificationsCount">0</strong>
         </div>
 
       </div>
 
 
-      <!-- WELCOME -->
+      <div class="dashboard-card glass">
 
-      <div class="welcome">
+        <h3>Quick Actions</h3>
 
-        <h1>
-          Private Workspace
-        </h1>
+        <div class="quick-actions">
 
-        <p>
-          Enter your 4-digit access code
-        </p>
+          <button
+            class="btn"
+            data-page="payments"
+          >
+            Review Payments
+          </button>
 
-      </div>
+          <button
+            class="btn secondary"
+            data-page="users"
+          >
+            Manage Users
+          </button>
 
+          <button
+            class="btn secondary"
+            data-page="notifications"
+          >
+            Send Notification
+          </button>
 
-      <!-- PIN -->
-
-      <div class="pin-container">
-
-
-        <div
-          id="pinDisplay"
-          class="pin-display"
-        >
-
-          <span class="pin-dot"></span>
-          <span class="pin-dot"></span>
-          <span class="pin-dot"></span>
-          <span class="pin-dot"></span>
+          <button
+            class="btn secondary"
+            data-page="support"
+          >
+            Support Chat
+          </button>
 
         </div>
 
+      </div>
+
+    </section>
+
+
+    <!-- ================= USERS ================= -->
+
+    <section
+      id="users"
+      class="view"
+    >
+
+      <div class="section-head">
+
+        <div>
+          <h2>Users</h2>
+          <p class="muted">
+            Firebase realtime user profiles
+          </p>
+        </div>
 
         <input
-          id="pinInput"
-          class="pin-input"
-          type="tel"
-          inputmode="numeric"
-          maxlength="4"
-          autocomplete="off"
+          id="userSearch"
+          class="field search"
+          placeholder="Search name, email or MVBD ID"
         >
 
+      </div>
+
+
+      <div class="table-card glass">
+
+        <div class="table-scroll">
+
+          <table>
+
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>MVBD ID</th>
+                <th>Status</th>
+                <th>Plan</th>
+                <th>Expiry</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+
+            <tbody id="usersTable"></tbody>
+
+          </table>
+
+        </div>
 
       </div>
+
+    </section>
+
+
+    <!-- ================= PAYMENTS ================= -->
+
+    <section
+      id="payments"
+      class="view"
+    >
+
+      <h2>Payment Requests</h2>
+
+      <p class="muted">
+        Review subscription payment requests
+      </p>
+
+      <div
+        class="table-card glass"
+        style="margin-top:15px"
+      >
+
+        <div class="table-scroll">
+
+          <table>
+
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Plan</th>
+                <th>Amount</th>
+                <th>Transaction ID</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+
+            <tbody id="paymentsTable"></tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================= SUBSCRIPTIONS ================= -->
+
+    <section
+      id="subscriptions"
+      class="view"
+    >
+
+      <h2>Subscriptions</h2>
+
+      <p class="muted">
+        Active and historical subscriptions
+      </p>
+
+      <div
+        class="table-card glass"
+        style="margin-top:15px"
+      >
+
+        <div class="table-scroll">
+
+          <table>
+
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Plan</th>
+                <th>Status</th>
+                <th>Started</th>
+                <th>Expires</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+
+            <tbody id="subscriptionsTable"></tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================= NOTIFICATIONS ================= -->
+
+    <section
+      id="notifications"
+      class="view"
+    >
+
+      <div class="section-head">
+
+        <div>
+
+          <h2>Notifications</h2>
+
+          <p class="muted">
+            Send realtime notifications to users
+          </p>
+
+        </div>
+
+        <button
+          id="newNotification"
+          class="btn"
+        >
+          + New Notification
+        </button>
+
+      </div>
+
+
+      <div class="table-card glass">
+
+        <div class="table-scroll">
+
+          <table>
+
+            <thead>
+              <tr>
+                <th>UID</th>
+                <th>Title</th>
+                <th>Message</th>
+                <th>Created</th>
+              </tr>
+            </thead>
+
+            <tbody id="notificationsTable"></tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================= SUPPORT ================= -->
+
+    <section
+      id="support"
+      class="view"
+    >
+
+      <h2>Support Chat</h2>
+
+      <p class="muted">
+        Realtime user support messages
+      </p>
 
 
       <div
-        id="pinError"
-        class="pin-error"
+        class="table-card glass"
+        style="margin-top:15px"
       >
-        Incorrect access code
+
+        <div class="table-scroll">
+
+          <table>
+
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Sender</th>
+                <th>Message</th>
+                <th>Time</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+
+            <tbody id="supportTable"></tbody>
+
+          </table>
+
+        </div>
+
       </div>
 
-
-      <!-- NUMBER PAD -->
-
-      <div class="number-pad">
+    </section>
 
 
-        <button
-          class="number-key"
-          data-number="1"
-          type="button"
-        >
-          <span class="number">1</span>
-        </button>
+    <!-- ================= SETTINGS ================= -->
+
+    <section
+      id="settings"
+      class="view"
+    >
+
+      <h2>Settings</h2>
+
+      <p class="muted">
+        MVBD Firebase system settings
+      </p>
 
 
-        <button
-          class="number-key"
-          data-number="2"
-          type="button"
-        >
-          <span class="number">2</span>
-          <span class="letters">ABC</span>
-        </button>
+      <div class="settings-card glass">
 
+        <div class="form-grid">
 
-        <button
-          class="number-key"
-          data-number="3"
-          type="button"
-        >
-          <span class="number">3</span>
-          <span class="letters">DEF</span>
-        </button>
+          <label>
+            Payment Number
+            <input
+              id="paymentNumber"
+              class="field"
+            >
+          </label>
 
+          <label>
+            Currency
+            <input
+              id="currency"
+              class="field"
+              value="৳"
+            >
+          </label>
 
-        <button
-          class="number-key"
-          data-number="4"
-          type="button"
-        >
-          <span class="number">4</span>
-          <span class="letters">GHI</span>
-        </button>
+          <label>
+            1 Month Price
+            <input
+              id="monthlyPrice"
+              class="field"
+              type="number"
+              value="20"
+            >
+          </label>
 
+          <label>
+            2 Month Price
+            <input
+              id="twoMonthPrice"
+              class="field"
+              type="number"
+              value="35"
+            >
+          </label>
 
-        <button
-          class="number-key"
-          data-number="5"
-          type="button"
-        >
-          <span class="number">5</span>
-          <span class="letters">JKL</span>
-        </button>
+          <label>
+            3 Month Price
+            <input
+              id="threeMonthPrice"
+              class="field"
+              type="number"
+              value="50"
+            >
+          </label>
 
+          <label>
+            Trial Days
+            <input
+              id="trialDays"
+              class="field"
+              type="number"
+              value="7"
+            >
+          </label>
 
-        <button
-          class="number-key"
-          data-number="6"
-          type="button"
-        >
-          <span class="number">6</span>
-          <span class="letters">MNO</span>
-        </button>
-
-
-        <button
-          class="number-key"
-          data-number="7"
-          type="button"
-        >
-          <span class="number">7</span>
-          <span class="letters">PQRS</span>
-        </button>
-
-
-        <button
-          class="number-key"
-          data-number="8"
-          type="button"
-        >
-          <span class="number">8</span>
-          <span class="letters">TUV</span>
-        </button>
-
+        </div>
 
         <button
-          class="number-key"
-          data-number="9"
-          type="button"
+          id="saveSettings"
+          class="btn"
+          style="margin-top:15px"
         >
-          <span class="number">9</span>
-          <span class="letters">WXYZ</span>
+          Save Settings
         </button>
-
-
-        <button
-          class="number-key clear-key"
-          id="clearPin"
-          type="button"
-        >
-          C
-        </button>
-
-
-        <button
-          class="number-key"
-          data-number="0"
-          type="button"
-        >
-          <span class="number">0</span>
-        </button>
-
-
-        <button
-          class="number-key clear-key"
-          id="deletePin"
-          type="button"
-        >
-          ←
-        </button>
-
 
       </div>
 
 
-      <!-- STATUS -->
+      <div class="settings-card glass">
 
-      <div class="login-status">
+        <h3>Admin Access</h3>
 
-        <span class="status-dot"></span>
-
-        <span>
-          MVBD SYSTEM READY
-        </span>
+        <p
+          class="muted"
+          style="margin-top:8px;line-height:1.6"
+        >
+          This version uses the requested client-side PIN.
+          The PIN only protects the HTML interface; it does
+          not itself create Firebase authorization. Proper
+          production authorization can be added later.
+        </p>
 
       </div>
-
 
     </section>
 
   </main>
 
 
-
-  <!-- ==================================================
-       DASHBOARD
-  =================================================== -->
-
-  <main id="dashboard">
-
-
-    <div class="dashboard-wrap">
-
-
-      <!-- HEADER -->
-
-      <header class="dash-header">
-
-
-        <div class="dash-brand">
-
-          <div class="dash-logo">
-            M
-          </div>
-
-
-          <div>
-
-            <div class="dash-name">
-              MoviesVerse<span>BD</span>
-            </div>
-
-            <div class="dash-label">
-              ADMIN CONTROL CENTER
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <div class="firebase-pill">
-
-          <span class="status-dot"></span>
-
-          <span>
-            Firebase Connected
-          </span>
-
-        </div>
-
-
-      </header>
-
-
-
-      <!-- HERO -->
-
-      <section class="dash-hero">
-
-        <div class="dash-kicker">
-          MVBD ADMIN
-        </div>
-
-        <h1>
-          Control Center
-        </h1>
-
-        <p>
-          Manage your MoviesVerseBD platform from one place.
-        </p>
-
-      </section>
-
-
-
-      <!-- STATS -->
-
-      <section class="stats">
-
-
-        <article class="stat">
-
-          <div class="stat-icon">
-            👥
-          </div>
-
-          <span class="stat-label">
-            Total Users
-          </span>
-
-          <strong
-            id="totalUsers"
-            class="stat-value"
-          >
-            0
-          </strong>
-
-        </article>
-
-
-        <article class="stat">
-
-          <div class="stat-icon">
-            💳
-          </div>
-
-          <span class="stat-label">
-            Pending Payments
-          </span>
-
-          <strong
-            id="pendingPayments"
-            class="stat-value"
-          >
-            0
-          </strong>
-
-        </article>
-
-
-        <article class="stat">
-
-          <div class="stat-icon">
-            ⭐
-          </div>
-
-          <span class="stat-label">
-            Premium Users
-          </span>
-
-          <strong
-            id="premiumUsers"
-            class="stat-value"
-          >
-            0
-          </strong>
-
-        </article>
-
-
-        <article class="stat">
-
-          <div class="stat-icon">
-            🔔
-          </div>
-
-          <span class="stat-label">
-            Notifications
-          </span>
-
-          <strong
-            id="notificationCount"
-            class="stat-value"
-          >
-            0
-          </strong>
-
-        </article>
-
-
-      </section>
-
-
-
-      <!-- CONTROLS -->
-
-      <div class="section-title">
-
-        <span>
-          MANAGEMENT
-        </span>
-
-        <h2>
-          Platform Controls
-        </h2>
-
-      </div>
-
-
-      <section class="controls">
-
-
-        <button
-          class="control"
-          data-section="users"
-          type="button"
-        >
-
-          <div class="control-icon">
-            👥
-          </div>
-
-          <div>
-
-            <h3>
-              Users
-            </h3>
-
-            <p>
-              View and manage all MVBD users
-            </p>
-
-          </div>
-
-          <span class="control-arrow">
-            →
-          </span>
-
-        </button>
-
-
-
-        <button
-          class="control"
-          data-section="payments"
-          type="button"
-        >
-
-          <div class="control-icon">
-            💳
-          </div>
-
-          <div>
-
-            <h3>
-              Payment Requests
-            </h3>
-
-            <p>
-              Review pending subscription payments
-            </p>
-
-          </div>
-
-          <span class="control-arrow">
-            →
-          </span>
-
-        </button>
-
-
-
-        <button
-          class="control"
-          data-section="subscriptions"
-          type="button"
-        >
-
-          <div class="control-icon">
-            ⭐
-          </div>
-
-          <div>
-
-            <h3>
-              Subscriptions
-            </h3>
-
-            <p>
-              Manage premium memberships
-            </p>
-
-          </div>
-
-          <span class="control-arrow">
-            →
-          </span>
-
-        </button>
-
-
-
-        <button
-          class="control"
-          data-section="notifications"
-          type="button"
-        >
-
-          <div class="control-icon">
-            🔔
-          </div>
-
-          <div>
-
-            <h3>
-              Notifications
-            </h3>
-
-            <p>
-              Send updates to your users
-            </p>
-
-          </div>
-
-          <span class="control-arrow">
-            →
-          </span>
-
-        </button>
-
-
-
-        <button
-          class="control"
-          data-section="support"
-          type="button"
-        >
-
-          <div class="control-icon">
-            💬
-          </div>
-
-          <div>
-
-            <h3>
-              Support Chat
-            </h3>
-
-            <p>
-              Communicate with users in realtime
-            </p>
-
-          </div>
-
-          <span class="control-arrow">
-            →
-          </span>
-
-        </button>
-
-
-
-        <button
-          class="control"
-          data-section="referrals"
-          type="button"
-        >
-
-          <div class="control-icon">
-            🎁
-          </div>
-
-          <div>
-
-            <h3>
-              Referrals
-            </h3>
-
-            <p>
-              View referral activity and users
-            </p>
-
-          </div>
-
-          <span class="control-arrow">
-            →
-          </span>
-
-        </button>
-
-
-
-        <button
-          class="control"
-          data-section="movies"
-          type="button"
-        >
-
-          <div class="control-icon">
-            🎬
-          </div>
-
-          <div>
-
-            <h3>
-              Movies
-            </h3>
-
-            <p>
-              Manage movie information
-            </p>
-
-          </div>
-
-          <span class="control-arrow">
-            →
-          </span>
-
-        </button>
-
-
-
-        <button
-          class="control"
-          data-section="settings"
-          type="button"
-        >
-
-          <div class="control-icon">
-            ⚙️
-          </div>
-
-          <div>
-
-            <h3>
-              Settings
-            </h3>
-
-            <p>
-              Admin panel preferences
-            </p>
-
-          </div>
-
-          <span class="control-arrow">
-            →
-          </span>
-
-        </button>
-
-
-      </section>
-
-
-
-      <!-- PAYMENTS -->
-
-      <div class="section-title">
-
-        <span>
-          FIREBASE REALTIME
-        </span>
-
-        <h2>
-          Recent Payments
-        </h2>
-
-      </div>
-
-
-      <section class="panel">
-
-
-        <div class="panel-head">
-
-          <div>
-
-            <h2>
-              Payment Requests
-            </h2>
-
-            <p>
-              Incoming requests will appear here.
-            </p>
-
-          </div>
-
-
-          <button
-            id="refreshPayments"
-            class="refresh"
-            type="button"
-          >
-            ↻ Refresh
-          </button>
-
-        </div>
-
-
-        <div
-          id="paymentList"
-          class="payment-list"
-        >
-
-          <div class="empty">
-
-            <div class="empty-icon">
-              💳
-            </div>
-
-            <h3>
-              No payment requests
-            </h3>
-
-            <p>
-              Firebase payment requests will appear automatically.
-            </p>
-
-          </div>
-
-        </div>
-
-
-      </section>
-
-
-    </div>
-
-
-
-    <!-- MOBILE NAV -->
-
-    <nav class="mobile-nav">
-
-
-      <button
-        class="nav-btn active"
-        data-section="dashboard"
-        type="button"
-      >
-
-        ⌂
-
-        <small>
-          Home
-        </small>
-
-      </button>
-
-
-      <button
-        class="nav-btn"
-        data-section="users"
-        type="button"
-      >
-
-        ♙
-
-        <small>
-          Users
-        </small>
-
-      </button>
-
-
-      <button
-        class="nav-btn"
-        data-section="payments"
-        type="button"
-      >
-
-        ▣
-
-        <small>
-          Payments
-        </small>
-
-      </button>
-
-
-      <button
-        class="nav-btn"
-        data-section="support"
-        type="button"
-      >
-
-        ◌
-
-        <small>
-          Support
-        </small>
-
-      </button>
-
-
-    </nav>
-
-
-  </main>
-
-
-
-  <!-- ==================================================
-       SECTION MESSAGE
-  =================================================== -->
-
-  <div
-    id="sectionMessage"
-    style="
-      position:fixed;
-      inset:0;
-      z-index:100;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding:20px;
-      background:rgba(0,0,0,.65);
-      backdrop-filter:blur(15px);
-    "
-  >
-
-    <div
-      style="
-        width:min(380px,100%);
-        padding:30px;
-        text-align:center;
-        border-radius:28px;
-        background:rgba(20,24,21,.9);
-        border:1px solid rgba(255,255,255,.1);
-        box-shadow:0 30px 80px rgba(0,0,0,.6);
-      "
+  <!-- =====================================================
+       BOTTOM NAV
+  ===================================================== -->
+
+  <nav class="bottom-nav glass">
+
+    <button
+      class="nav-btn active"
+      data-page="dashboard"
     >
+      <b>⌂</b>
+      Home
+    </button>
 
-      <div
-        id="sectionIcon"
-        style="font-size:38px;"
-      >
-        ✨
-      </div>
+    <button
+      class="nav-btn"
+      data-page="users"
+    >
+      <b>♙</b>
+      Users
+    </button>
 
-      <h2
-        id="sectionTitle"
-        style="
-          margin-top:12px;
-          font-size:20px;
-        "
-      >
-        MVBD
-      </h2>
+    <button
+      class="nav-btn"
+      data-page="payments"
+    >
+      <b>৳</b>
+      Payments
+    </button>
 
-      <p
-        id="sectionText"
-        style="
-          margin-top:8px;
-          color:#737d77;
-          font-size:12px;
-        "
-      >
-        Section ready.
-      </p>
+    <button
+      class="nav-btn"
+      data-page="subscriptions"
+    >
+      <b>◈</b>
+      Subs
+    </button>
 
-      <button
-        id="closeSection"
-        type="button"
-        style="
-          margin-top:22px;
-          padding:11px 20px;
-          border-radius:14px;
-          background:#27e87d;
-          color:#03190d;
-          font-weight:800;
-        "
-      >
-        Close
-      </button>
+    <button
+      class="nav-btn"
+      data-page="notifications"
+    >
+      <b>♢</b>
+      Alerts
+    </button>
 
-    </div>
+    <button
+      class="nav-btn"
+      data-page="support"
+    >
+      <b>☏</b>
+      Support
+    </button>
+
+    <button
+      class="nav-btn"
+      data-page="settings"
+    >
+      <b>⚙</b>
+      Settings
+    </button>
+
+  </nav>
+
+</div>
+
+
+<!-- =====================================================
+     MODAL
+===================================================== -->
+
+<div
+  id="modal"
+  class="modal"
+>
+
+  <div class="modal-box glass">
+
+    <button
+      id="modalClose"
+      class="btn secondary modal-close"
+    >
+      Close
+    </button>
+
+    <div id="modalContent"></div>
 
   </div>
 
+</div>
 
 
-  <!-- ==================================================
-       PASSWORD SYSTEM
-  =================================================== -->
+<div id="toast"></div>
 
-  <script>
 
-    (() => {
+<!-- =====================================================
+     FIREBASE + ADMIN LOGIC
+===================================================== -->
 
-      const CORRECT_CODE = "8682";
+<script type="module">
 
-      let enteredCode = "";
+  import {
+    initializeApp
+  } from
+  "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 
-      const lockScreen =
-        document.getElementById("lockScreen");
 
-      const loginCard =
-        document.getElementById("loginCard");
+  import {
+    getFirestore,
+    collection,
+    doc,
+    onSnapshot,
+    addDoc,
+    setDoc,
+    updateDoc,
+    writeBatch,
+    serverTimestamp,
+    Timestamp
+  } from
+  "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
-      const dashboard =
-        document.getElementById("dashboard");
 
-      const pinError =
-        document.getElementById("pinError");
+  /* =====================================================
+     FIREBASE CONFIG
+  ===================================================== */
 
-      const unlockFlash =
-        document.getElementById("unlockFlash");
+  const firebaseConfig = {
 
-      const dots =
-        document.querySelectorAll(".pin-dot");
+    apiKey:
+      "AIzaSyBtBaUSIlXwJDWytaiOfal3ha7OmZEwuYM",
 
-      function updateDots() {
+    authDomain:
+      "mvbdminiapp.firebaseapp.com",
 
-        dots.forEach((dot, index) => {
+    projectId:
+      "mvbdminiapp",
 
-          dot.classList.toggle(
-            "active",
-            index < enteredCode.length
+    storageBucket:
+      "mvbdminiapp.firebasestorage.app",
+
+    messagingSenderId:
+      "668051748254",
+
+    appId:
+      "1:668051748254:web:d4804b68429d853a0c928f",
+
+    measurementId:
+      "G-HQZ9SL4RX8"
+  };
+
+
+  const firebaseApp =
+    initializeApp(firebaseConfig);
+
+  const db =
+    getFirestore(firebaseApp);
+
+
+  /* =====================================================
+     ADMIN PIN
+  ===================================================== */
+
+  const ADMIN_PIN = "8682";
+
+
+  /* =====================================================
+     LOCAL STATE
+  ===================================================== */
+
+  let users = [];
+  let payments = [];
+  let subscriptions = [];
+  let notifications = [];
+  let supportMessages = [];
+
+  let unsubscribeFunctions = [];
+
+
+  /* =====================================================
+     HELPERS
+  ===================================================== */
+
+  const $ = id =>
+    document.getElementById(id);
+
+
+  function escapeHTML(value) {
+
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+
+  function convertDate(value) {
+
+    if (!value)
+      return null;
+
+    if (
+      typeof value.toDate === "function"
+    ) {
+      return value.toDate();
+    }
+
+    if (value.seconds) {
+      return new Date(
+        value.seconds * 1000
+      );
+    }
+
+    const date =
+      new Date(value);
+
+    return isNaN(date)
+      ? null
+      : date;
+  }
+
+
+  function formatDate(value) {
+
+    const date =
+      convertDate(value);
+
+    if (!date)
+      return "—";
+
+    return date.toLocaleString(
+      "en-GB",
+      {
+        dateStyle: "medium",
+        timeStyle: "short"
+      }
+    );
+  }
+
+
+  function getUID(item) {
+
+    return (
+      item?.uid ||
+      item?.userId ||
+      item?.userUid ||
+      ""
+    );
+  }
+
+
+  function getUserName(item) {
+
+    return (
+      item?.name ||
+      item?.displayName ||
+      item?.email ||
+      getUID(item) ||
+      "Unknown"
+    );
+  }
+
+
+  function getPlanName(planId) {
+
+    const plans = {
+
+      monthly:
+        "1 Month",
+
+      two_months:
+        "2 Months",
+
+      three_months:
+        "3 Months",
+
+      trial:
+        "7 Day Trial"
+    };
+
+    return (
+      plans[planId] ||
+      planId ||
+      "—"
+    );
+  }
+
+
+  function getPlanDays(planId) {
+
+    const days = {
+
+      monthly: 30,
+
+      two_months: 60,
+
+      three_months: 90
+    };
+
+    return days[planId] || 0;
+  }
+
+
+  function findUser(uid) {
+
+    return users.find(
+      user =>
+        user.id === uid ||
+        user.uid === uid
+    ) || {};
+  }
+
+
+  function toast(message) {
+
+    const element =
+      $("toast");
+
+    element.textContent =
+      message;
+
+    element.classList.add("show");
+
+    setTimeout(() => {
+
+      element.classList.remove("show");
+
+    }, 2600);
+  }
+
+
+  function showModal(html) {
+
+    $("modalContent").innerHTML =
+      html;
+
+    $("modal").classList.add(
+      "show"
+    );
+  }
+
+
+  function closeModal() {
+
+    $("modal").classList.remove(
+      "show"
+    );
+
+    $("modalContent").innerHTML =
+      "";
+  }
+
+
+  /* =====================================================
+     FIRESTORE REALTIME LISTENER
+  ===================================================== */
+
+  function listenCollection(
+    collectionName,
+    callback
+  ) {
+
+    return onSnapshot(
+
+      collection(
+        db,
+        collectionName
+      ),
+
+      snapshot => {
+
+        const data =
+          snapshot.docs.map(
+            document => ({
+              id: document.id,
+              ...document.data()
+            })
           );
 
-        });
+        callback(data);
+
+        $("firebaseStatus").textContent =
+          "● Firebase realtime connected";
+
+      },
+
+      error => {
+
+        console.error(
+          collectionName,
+          error
+        );
+
+        $("firebaseStatus").textContent =
+          "Firebase Rules / connection error";
 
       }
 
-
-      function clearError() {
-
-        pinError.classList.remove("show");
-
-      }
+    );
+  }
 
 
-      function addNumber(number) {
+  /* =====================================================
+     START REALTIME
+  ===================================================== */
 
-        if (enteredCode.length >= 4) {
-          return;
+  function startRealtime() {
+
+    unsubscribeFunctions.push(
+
+      listenCollection(
+        "users",
+        data => {
+          users = data;
+          renderAll();
         }
+      ),
 
-        enteredCode += number;
-
-        updateDots();
-
-        clearError();
-
-        if (enteredCode.length === 4) {
-
-          setTimeout(checkCode, 120);
-
+      listenCollection(
+        "paymentRequests",
+        data => {
+          payments = data;
+          renderAll();
         }
+      ),
 
-      }
-
-
-      function deleteNumber() {
-
-        enteredCode =
-          enteredCode.slice(0, -1);
-
-        updateDots();
-
-        clearError();
-
-      }
-
-
-      function clearNumber() {
-
-        enteredCode = "";
-
-        updateDots();
-
-        clearError();
-
-      }
-
-
-      function checkCode() {
-
-        if (enteredCode === CORRECT_CODE) {
-
-          unlock();
-
-        } else {
-
-          showError();
-
+      listenCollection(
+        "subscriptions",
+        data => {
+          subscriptions = data;
+          renderAll();
         }
+      ),
 
-      }
-
-
-      function showError() {
-
-        pinError.classList.add("show");
-
-        loginCard.classList.remove("shake");
-
-        void loginCard.offsetWidth;
-
-        loginCard.classList.add("shake");
-
-        if (navigator.vibrate) {
-          navigator.vibrate([40, 30, 40]);
+      listenCollection(
+        "notifications",
+        data => {
+          notifications = data;
+          renderAll();
         }
+      ),
 
-        setTimeout(() => {
-
-          enteredCode = "";
-
-          updateDots();
-
-        }, 500);
-
-      }
-
-
-      function unlock() {
-
-        if (navigator.vibrate) {
-          navigator.vibrate(25);
+      listenCollection(
+        "supportMessages",
+        data => {
+          supportMessages = data;
+          renderAll();
         }
+      )
 
-        unlockFlash.classList.add("active");
-
-        loginCard.classList.add("success");
-
-        setTimeout(() => {
-
-          lockScreen.classList.add("unlocked");
-
-        }, 350);
+    );
 
 
-        setTimeout(() => {
+    onSnapshot(
 
-          dashboard.classList.add("visible");
+      doc(
+        db,
+        "settings",
+        "mvbd"
+      ),
 
-        }, 600);
+      snapshot => {
+
+        const settings =
+          snapshot.exists()
+            ? snapshot.data()
+            : {};
+
+        $("paymentNumber").value =
+          settings.paymentNumber ||
+          "01865522275";
+
+        $("currency").value =
+          settings.currency ||
+          "৳";
+
+        $("monthlyPrice").value =
+          settings.monthlyPrice ??
+          20;
+
+        $("twoMonthPrice").value =
+          settings.twoMonthPrice ??
+          35;
+
+        $("threeMonthPrice").value =
+          settings.threeMonthPrice ??
+          50;
+
+        $("trialDays").value =
+          settings.trialDays ??
+          7;
 
       }
 
+    );
 
-      document
-        .querySelectorAll("[data-number]")
-        .forEach(button => {
+  }
 
-          button.addEventListener(
-            "click",
-            () => {
 
-              addNumber(
-                button.dataset.number
-              );
+  /* =====================================================
+     RENDER ALL
+  ===================================================== */
 
-            }
+  function renderAll() {
+
+    renderUsers();
+
+    renderPayments();
+
+    renderSubscriptions();
+
+    renderNotifications();
+
+    renderSupport();
+
+    updateStats();
+
+  }
+
+
+  /* =====================================================
+     STATS
+  ===================================================== */
+
+  function updateStats() {
+
+    $("usersCount").textContent =
+      users.length;
+
+
+    $("pendingCount").textContent =
+      payments.filter(
+        payment =>
+          (payment.status || "pending")
+          === "pending"
+      ).length;
+
+
+    $("activeSubsCount").textContent =
+      subscriptions.filter(
+        subscription =>
+          subscription.status ===
+          "active"
+      ).length;
+
+
+    $("notificationsCount").textContent =
+      notifications.length;
+
+  }
+
+
+  /* =====================================================
+     USERS
+  ===================================================== */
+
+  function renderUsers() {
+
+    const query =
+      (
+        $("userSearch").value ||
+        ""
+      ).toLowerCase();
+
+
+    const filtered =
+      users.filter(user => {
+
+        const text = `
+          ${user.name || ""}
+          ${user.email || ""}
+          ${user.mvbdId || ""}
+        `.toLowerCase();
+
+        return text.includes(query);
+
+      });
+
+
+    if (!filtered.length) {
+
+      $("usersTable").innerHTML = `
+        <tr>
+          <td colspan="6">
+            <div class="empty">
+              No users found
+            </div>
+          </td>
+        </tr>
+      `;
+
+      return;
+    }
+
+
+    $("usersTable").innerHTML =
+      filtered.map(user => {
+
+        const expiry =
+          convertDate(
+            user.subscriptionExpiresAt ||
+            user.trialExpiresAt
           );
 
-        });
+
+        let status =
+          "Normal";
+
+        let statusClass =
+          "";
 
 
-      document
-        .getElementById("deletePin")
-        .addEventListener(
-          "click",
-          deleteNumber
-        );
+        if (
+          user.subscriptionStatus ===
+          "active"
+        ) {
 
+          status =
+            "Premium";
 
-      document
-        .getElementById("clearPin")
-        .addEventListener(
-          "click",
-          clearNumber
-        );
-
-
-      /*
-       * Hidden keyboard support
-       * Type 8682 directly from keyboard.
-       */
-
-      document.addEventListener(
-        "keydown",
-        event => {
-
-          if (
-            event.key >= "0" &&
-            event.key <= "9"
-          ) {
-
-            addNumber(event.key);
-
-          }
-
-          if (event.key === "Backspace") {
-
-            deleteNumber();
-
-          }
-
-          if (event.key === "Escape") {
-
-            clearNumber();
-
-          }
+          statusClass =
+            "green";
 
         }
+        else if (
+          expiry &&
+          expiry > new Date()
+        ) {
+
+          status =
+            "Trial";
+
+          statusClass =
+            "yellow";
+
+        }
+
+
+        return `
+          <tr>
+
+            <td>
+              <b>
+                ${escapeHTML(
+                  user.name ||
+                  "Unnamed"
+                )}
+              </b>
+
+              <br>
+
+              <span class="muted">
+                ${escapeHTML(
+                  user.email ||
+                  ""
+                )}
+              </span>
+            </td>
+
+
+            <td>
+              ${escapeHTML(
+                user.mvbdId ||
+                "—"
+              )}
+            </td>
+
+
+            <td>
+              <span
+                class="pill ${statusClass}"
+              >
+                ${status}
+              </span>
+            </td>
+
+
+            <td>
+              ${escapeHTML(
+                getPlanName(
+                  user.subscriptionPlan
+                )
+              )}
+            </td>
+
+
+            <td>
+              ${formatDate(
+                user.subscriptionExpiresAt ||
+                user.trialExpiresAt
+              )}
+            </td>
+
+
+            <td>
+
+              <button
+                class="btn secondary"
+                data-edit-user="${escapeHTML(
+                  user.id
+                )}"
+              >
+                Edit
+              </button>
+
+            </td>
+
+          </tr>
+        `;
+
+      }).join("");
+
+  }
+
+
+  /* =====================================================
+     PAYMENTS
+  ===================================================== */
+
+  function renderPayments() {
+
+    const sorted =
+      [...payments].sort(
+        (a,b) =>
+          (
+            convertDate(
+              b.createdAt
+            ) || 0
+          ) -
+          (
+            convertDate(
+              a.createdAt
+            ) || 0
+          )
       );
 
 
-      /*
-       * Section interaction
-       */
+    if (!sorted.length) {
 
-      const sectionMessage =
-        document.getElementById(
-          "sectionMessage"
+      $("paymentsTable").innerHTML = `
+        <tr>
+          <td colspan="6">
+            <div class="empty">
+              No payment requests
+            </div>
+          </td>
+        </tr>
+      `;
+
+      return;
+    }
+
+
+    $("paymentsTable").innerHTML =
+      sorted.map(payment => {
+
+        const user =
+          findUser(
+            getUID(payment)
+          );
+
+
+        const status =
+          payment.status ||
+          "pending";
+
+
+        const statusClass =
+          status === "approved"
+            ? "green"
+            : status === "rejected"
+              ? "red"
+              : "yellow";
+
+
+        return `
+          <tr>
+
+            <td>
+
+              <b>
+                ${escapeHTML(
+                  payment.name ||
+                  user.name ||
+                  getUID(payment)
+                )}
+              </b>
+
+              <br>
+
+              <span class="muted">
+                ${escapeHTML(
+                  payment.email ||
+                  user.email ||
+                  ""
+                )}
+              </span>
+
+            </td>
+
+
+            <td>
+              ${escapeHTML(
+                payment.planName ||
+                getPlanName(
+                  payment.planId
+                )
+              )}
+            </td>
+
+
+            <td>
+              ${escapeHTML(
+                payment.amount ??
+                "—"
+              )}
+            </td>
+
+
+            <td>
+              <b>
+                ${escapeHTML(
+                  payment.transactionId ||
+                  "—"
+                )}
+              </b>
+            </td>
+
+
+            <td>
+              <span
+                class="pill ${statusClass}"
+              >
+                ${escapeHTML(
+                  status
+                )}
+              </span>
+            </td>
+
+
+            <td>
+
+              ${
+                status === "pending"
+
+                ?
+
+                `
+                  <div class="actions">
+
+                    <button
+                      class="btn"
+                      data-approve="${escapeHTML(
+                        payment.id
+                      )}"
+                    >
+                      Approve
+                    </button>
+
+                    <button
+                      class="btn danger"
+                      data-reject="${escapeHTML(
+                        payment.id
+                      )}"
+                    >
+                      Reject
+                    </button>
+
+                  </div>
+                `
+
+                :
+
+                "—"
+              }
+
+            </td>
+
+          </tr>
+        `;
+
+      }).join("");
+
+  }
+
+
+  /* =====================================================
+     APPROVE PAYMENT
+  ===================================================== */
+
+  async function approvePayment(
+    paymentId
+  ) {
+
+    const payment =
+      payments.find(
+        item =>
+          item.id === paymentId
+      );
+
+
+    if (!payment)
+      return;
+
+
+    const uid =
+      getUID(payment);
+
+
+    const planId =
+      payment.planId;
+
+
+    const planDays =
+      getPlanDays(
+        planId
+      );
+
+
+    if (!uid || !planDays) {
+
+      toast(
+        "Invalid payment data"
+      );
+
+      return;
+    }
+
+
+    const user =
+      findUser(uid);
+
+
+    const currentExpiry =
+      convertDate(
+        user.subscriptionExpiresAt
+      );
+
+
+    const now =
+      new Date();
+
+
+    const base =
+      currentExpiry &&
+      currentExpiry > now
+        ? currentExpiry
+        : now;
+
+
+    const expiry =
+      new Date(
+        base.getTime() +
+        planDays *
+        24 *
+        60 *
+        60 *
+        1000
+      );
+
+
+    const batch =
+      writeBatch(db);
+
+
+    /* Payment */
+
+    batch.update(
+
+      doc(
+        db,
+        "paymentRequests",
+        paymentId
+      ),
+
+      {
+        status:
+          "approved",
+
+        reviewedBy:
+          "admin",
+
+        reviewedAt:
+          serverTimestamp()
+      }
+
+    );
+
+
+    /* User */
+
+    batch.set(
+
+      doc(
+        db,
+        "users",
+        uid
+      ),
+
+      {
+
+        accessType:
+          "subscription",
+
+        subscriptionStatus:
+          "active",
+
+        subscriptionPlan:
+          planId,
+
+        subscriptionStartedAt:
+          serverTimestamp(),
+
+        subscriptionExpiresAt:
+          Timestamp.fromDate(
+            expiry
+          ),
+
+        updatedAt:
+          serverTimestamp()
+
+      },
+
+      {
+        merge:
+          true
+      }
+
+    );
+
+
+    /* Subscription */
+
+    batch.set(
+
+      doc(
+        db,
+        "subscriptions",
+        "payment_" +
+        paymentId
+      ),
+
+      {
+
+        uid:
+
+          uid,
+
+        name:
+
+          payment.name ||
+          user.name ||
+          "",
+
+        email:
+
+          payment.email ||
+          user.email ||
+          "",
+
+        planId:
+
+          planId,
+
+        planName:
+
+          payment.planName ||
+          getPlanName(
+            planId
+          ),
+
+        amount:
+
+          payment.amount ??
+          0,
+
+        status:
+
+          "active",
+
+        startedAt:
+
+          serverTimestamp(),
+
+        expiresAt:
+
+          Timestamp.fromDate(
+            expiry
+          ),
+
+        paymentRequestId:
+
+          paymentId,
+
+        transactionId:
+
+          payment.transactionId ||
+          "",
+
+        updatedAt:
+
+          serverTimestamp()
+
+      },
+
+      {
+        merge:
+          true
+      }
+
+    );
+
+
+    /* Notification */
+
+    batch.set(
+
+      doc(
+        db,
+        "notifications",
+        uid +
+        "_approved_" +
+        paymentId
+      ),
+
+      {
+
+        uid:
+
+          uid,
+
+        title:
+
+          "Subscription Approved",
+
+        message:
+
+          `Your ${
+            payment.planName ||
+            getPlanName(
+              planId
+            )
+          } subscription has been approved.`,
+
+        type:
+
+          "subscription",
+
+        read:
+
+          false,
+
+        createdAt:
+
+          serverTimestamp()
+
+      },
+
+      {
+        merge:
+          true
+      }
+
+    );
+
+
+    await batch.commit();
+
+
+    toast(
+      "Payment approved successfully"
+    );
+
+  }
+
+
+  /* =====================================================
+     REJECT PAYMENT
+  ===================================================== */
+
+  async function rejectPayment(
+    paymentId
+  ) {
+
+    const payment =
+      payments.find(
+        item =>
+          item.id === paymentId
+      );
+
+
+    if (!payment)
+      return;
+
+
+    const reason =
+      prompt(
+        "Rejection reason:",
+        "Payment could not be verified."
+      );
+
+
+    const batch =
+      writeBatch(db);
+
+
+    batch.update(
+
+      doc(
+        db,
+        "paymentRequests",
+        paymentId
+      ),
+
+      {
+
+        status:
+          "rejected",
+
+        rejectionReason:
+          reason || "",
+
+        reviewedBy:
+          "admin",
+
+        reviewedAt:
+          serverTimestamp()
+
+      }
+
+    );
+
+
+    const uid =
+      getUID(payment);
+
+
+    if (uid) {
+
+      batch.set(
+
+        doc(
+          db,
+          "notifications",
+          uid +
+          "_rejected_" +
+          paymentId
+        ),
+
+        {
+
+          uid:
+
+            uid,
+
+          title:
+
+            "Payment Request Rejected",
+
+          message:
+
+            reason ||
+            "Your payment request was rejected. Please contact support.",
+
+          type:
+
+            "payment",
+
+          read:
+
+            false,
+
+          createdAt:
+
+            serverTimestamp()
+
+        },
+
+        {
+          merge:
+            true
+        }
+
+      );
+
+    }
+
+
+    await batch.commit();
+
+
+    toast(
+      "Payment rejected"
+    );
+
+  }
+
+
+  /* =====================================================
+     EDIT USER
+  ===================================================== */
+
+  function editUser(
+    userId
+  ) {
+
+    const user =
+      users.find(
+        item =>
+          item.id === userId
+      );
+
+
+    if (!user)
+      return;
+
+
+    showModal(`
+
+      <h2>Edit User</h2>
+
+      <p
+        class="muted"
+        style="margin-top:7px"
+      >
+        Update Firebase user profile
+      </p>
+
+
+      <div
+        class="form-grid"
+        style="margin-top:15px"
+      >
+
+        <label>
+          Name
+          <input
+            id="editName"
+            class="field"
+            value="${escapeHTML(
+              user.name || ""
+            )}"
+          >
+        </label>
+
+
+        <label>
+          Email
+          <input
+            id="editEmail"
+            class="field"
+            value="${escapeHTML(
+              user.email || ""
+            )}"
+          >
+        </label>
+
+
+        <label>
+          MVBD ID
+          <input
+            id="editMvbd"
+            class="field"
+            value="${escapeHTML(
+              user.mvbdId || ""
+            )}"
+          >
+        </label>
+
+
+        <label>
+          Subscription Status
+
+          <select
+            id="editStatus"
+            class="field"
+          >
+
+            <option value="inactive">
+              Normal
+            </option>
+
+            <option value="active">
+              Premium
+            </option>
+
+            <option value="expired">
+              Expired
+            </option>
+
+          </select>
+
+        </label>
+
+
+        <label>
+          Subscription Plan
+
+          <select
+            id="editPlan"
+            class="field"
+          >
+
+            <option value="">
+              None
+            </option>
+
+            <option value="monthly">
+              1 Month
+            </option>
+
+            <option value="two_months">
+              2 Months
+            </option>
+
+            <option value="three_months">
+              3 Months
+            </option>
+
+          </select>
+
+        </label>
+
+
+        <label>
+          Subscription Expiry
+
+          <input
+            id="editExpiry"
+            class="field"
+            type="datetime-local"
+          >
+
+        </label>
+
+      </div>
+
+
+      <button
+        id="saveUser"
+        class="btn"
+        style="margin-top:15px"
+      >
+        Save User
+      </button>
+
+    `);
+
+
+    $("editStatus").value =
+      user.subscriptionStatus ||
+      "inactive";
+
+
+    $("editPlan").value =
+      user.subscriptionPlan ||
+      "";
+
+
+    const expiry =
+      convertDate(
+        user.subscriptionExpiresAt
+      );
+
+
+    if (expiry) {
+
+      const local =
+        new Date(
+          expiry.getTime() -
+          expiry.getTimezoneOffset()
+          * 60000
         );
 
-      const sectionTitle =
-        document.getElementById(
-          "sectionTitle"
+      $("editExpiry").value =
+        local
+          .toISOString()
+          .slice(
+            0,
+            16
+          );
+
+    }
+
+
+    $("saveUser").onclick =
+      async () => {
+
+        const status =
+          $("editStatus").value;
+
+
+        const plan =
+          $("editPlan").value;
+
+
+        const data = {
+
+          name:
+            $("editName")
+            .value
+            .trim(),
+
+          email:
+            $("editEmail")
+            .value
+            .trim(),
+
+          mvbdId:
+            $("editMvbd")
+            .value
+            .trim(),
+
+          subscriptionStatus:
+            status,
+
+          subscriptionPlan:
+            plan || null,
+
+          accessType:
+            status === "active"
+              ? "subscription"
+              : null,
+
+          updatedAt:
+            serverTimestamp()
+
+        };
+
+
+        const expiryValue =
+          $("editExpiry")
+          .value;
+
+
+        if (expiryValue) {
+
+          data.subscriptionExpiresAt =
+            Timestamp.fromDate(
+              new Date(
+                expiryValue
+              )
+            );
+
+        }
+        else if (
+          status !== "active"
+        ) {
+
+          data.subscriptionExpiresAt =
+            null;
+
+        }
+
+
+        await updateDoc(
+
+          doc(
+            db,
+            "users",
+            userId
+          ),
+
+          data
+
         );
 
-      const sectionText =
-        document.getElementById(
-          "sectionText"
+
+        closeModal();
+
+
+        toast(
+          "User updated"
         );
-
-      const sectionIcon =
-        document.getElementById(
-          "sectionIcon"
-        );
-
-
-      const sectionIcons = {
-
-        users: "👥",
-
-        payments: "💳",
-
-        subscriptions: "⭐",
-
-        notifications: "🔔",
-
-        support: "💬",
-
-        referrals: "🎁",
-
-        movies: "🎬",
-
-        settings: "⚙️"
 
       };
 
+  }
 
-      document
-        .querySelectorAll("[data-section]")
-        .forEach(button => {
 
-          button.addEventListener(
-            "click",
-            () => {
+  /* =====================================================
+     SUBSCRIPTIONS
+  ===================================================== */
 
-              const section =
-                button.dataset.section;
+  function renderSubscriptions() {
 
-              if (
-                section === "dashboard"
-              ) {
+    if (!subscriptions.length) {
 
-                return;
+      $("subscriptionsTable")
+        .innerHTML = `
 
-              }
+          <tr>
 
-              sectionIcon.textContent =
-                sectionIcons[section] || "✨";
+            <td colspan="6">
 
-              sectionTitle.textContent =
-                section
-                  .charAt(0)
-                  .toUpperCase() +
-                section.slice(1);
+              <div class="empty">
+                No subscriptions
+              </div>
 
-              sectionText.textContent =
-                "This MVBD control section is ready for Firebase integration.";
+            </td>
 
-              sectionMessage.style.display =
-                "flex";
+          </tr>
+
+        `;
+
+      return;
+    }
+
+
+    $("subscriptionsTable")
+      .innerHTML =
+
+      subscriptions
+        .map(subscription => {
+
+          const user =
+            findUser(
+              getUID(
+                subscription
+              )
+            );
+
+
+          return `
+
+            <tr>
+
+              <td>
+                ${escapeHTML(
+                  subscription.name ||
+                  user.name ||
+                  getUID(
+                    subscription
+                  )
+                )}
+              </td>
+
+
+              <td>
+                ${escapeHTML(
+                  subscription.planName ||
+                  getPlanName(
+                    subscription.planId
+                  )
+                )}
+              </td>
+
+
+              <td>
+
+                <span
+                  class="pill ${
+                    subscription.status ===
+                    "active"
+                      ? "green"
+                      : subscription.status ===
+                        "expired"
+                        ? "red"
+                        : ""
+                  }"
+                >
+                  ${escapeHTML(
+                    subscription.status ||
+                    "—"
+                  )}
+                </span>
+
+              </td>
+
+
+              <td>
+                ${formatDate(
+                  subscription.startedAt
+                )}
+              </td>
+
+
+              <td>
+                ${formatDate(
+                  subscription.expiresAt ||
+                  subscription.subscriptionExpiresAt
+                )}
+              </td>
+
+
+              <td>
+
+                <button
+                  class="btn secondary"
+                  data-extend-sub="${escapeHTML(
+                    subscription.id
+                  )}"
+                >
+                  Extend
+                </button>
+
+              </td>
+
+            </tr>
+
+          `;
+
+        })
+        .join("");
+
+  }
+
+
+  /* =====================================================
+     EXTEND SUBSCRIPTION
+  ===================================================== */
+
+  function extendSubscription(
+    subscriptionId
+  ) {
+
+    const subscription =
+      subscriptions.find(
+        item =>
+          item.id ===
+          subscriptionId
+      );
+
+
+    if (!subscription)
+      return;
+
+
+    showModal(`
+
+      <h2>Extend Subscription</h2>
+
+      <p class="muted">
+        ${
+          escapeHTML(
+            subscription.name ||
+            getUID(
+              subscription
+            )
+          )
+        }
+      </p>
+
+
+      <label
+        style="display:block;margin-top:15px"
+      >
+        Extra Days
+
+        <input
+          id="extensionDays"
+          class="field"
+          type="number"
+          min="1"
+          value="${
+            getPlanDays(
+              subscription.planId
+            ) || 30
+          }"
+        >
+
+      </label>
+
+
+      <button
+        id="extendNow"
+        class="btn"
+        style="margin-top:15px"
+      >
+        Extend Subscription
+      </button>
+
+    `);
+
+
+    $("extendNow").onclick =
+      async () => {
+
+        const extraDays =
+          Math.max(
+            1,
+            Number(
+              $("extensionDays")
+                .value
+            ) || 30
+          );
+
+
+        const oldExpiry =
+          convertDate(
+            subscription.expiresAt
+          );
+
+
+        const now =
+          new Date();
+
+
+        const base =
+          oldExpiry &&
+          oldExpiry > now
+            ? oldExpiry
+            : now;
+
+
+        const newExpiry =
+          new Date(
+            base.getTime() +
+            extraDays *
+            86400000
+          );
+
+
+        const batch =
+          writeBatch(db);
+
+
+        batch.set(
+
+          doc(
+            db,
+            "subscriptions",
+            subscriptionId
+          ),
+
+          {
+
+            status:
+              "active",
+
+            expiresAt:
+              Timestamp.fromDate(
+                newExpiry
+              ),
+
+            updatedAt:
+              serverTimestamp()
+
+          },
+
+          {
+            merge:
+              true
+          }
+
+        );
+
+
+        const uid =
+          getUID(
+            subscription
+          );
+
+
+        if (uid) {
+
+          batch.set(
+
+            doc(
+              db,
+              "users",
+              uid
+            ),
+
+            {
+
+              accessType:
+                "subscription",
+
+              subscriptionStatus:
+                "active",
+
+              subscriptionPlan:
+                subscription.planId ||
+                null,
+
+              subscriptionExpiresAt:
+                Timestamp.fromDate(
+                  newExpiry
+                ),
+
+              updatedAt:
+                serverTimestamp()
+
+            },
+
+            {
+              merge:
+                true
+            }
+
+          );
+
+        }
+
+
+        await batch.commit();
+
+
+        closeModal();
+
+
+        toast(
+          "Subscription extended"
+        );
+
+      };
+
+  }
+
+
+  /* =====================================================
+     NOTIFICATIONS
+  ===================================================== */
+
+  function renderNotifications() {
+
+    const sorted =
+      [...notifications].sort(
+        (a,b) =>
+          (
+            convertDate(
+              b.createdAt
+            ) || 0
+          ) -
+          (
+            convertDate(
+              a.createdAt
+            ) || 0
+          )
+      );
+
+
+    if (!sorted.length) {
+
+      $("notificationsTable")
+        .innerHTML = `
+
+          <tr>
+
+            <td colspan="4">
+
+              <div class="empty">
+                No notifications
+              </div>
+
+            </td>
+
+          </tr>
+
+        `;
+
+      return;
+    }
+
+
+    $("notificationsTable")
+      .innerHTML =
+
+      sorted
+        .slice(0,100)
+        .map(
+          notification => `
+
+            <tr>
+
+              <td>
+                ${escapeHTML(
+                  notification.uid ||
+                  "—"
+                )}
+              </td>
+
+              <td>
+                ${escapeHTML(
+                  notification.title ||
+                  ""
+                )}
+              </td>
+
+              <td>
+                ${escapeHTML(
+                  notification.message ||
+                  ""
+                )}
+              </td>
+
+              <td>
+                ${formatDate(
+                  notification.createdAt
+                )}
+              </td>
+
+            </tr>
+
+          `
+        )
+        .join("");
+
+  }
+
+
+  /* =====================================================
+     NEW NOTIFICATION
+  ===================================================== */
+
+  function newNotification() {
+
+    showModal(`
+
+      <h2>Send Notification</h2>
+
+      <p
+        class="muted"
+        style="margin-top:7px"
+      >
+        Use a Firebase UID or type
+        ALL for all current users.
+      </p>
+
+
+      <input
+        id="notificationUid"
+        class="field"
+        placeholder="User UID or ALL"
+      >
+
+
+      <input
+        id="notificationTitle"
+        class="field"
+        placeholder="Notification title"
+      >
+
+
+      <textarea
+        id="notificationMessage"
+        class="field"
+        placeholder="Notification message"
+      ></textarea>
+
+
+      <button
+        id="sendNotification"
+        class="btn"
+        style="margin-top:13px"
+      >
+        Send Notification
+      </button>
+
+    `);
+
+
+    $("sendNotification").onclick =
+      async () => {
+
+        const uid =
+          $("notificationUid")
+            .value
+            .trim();
+
+
+        const title =
+          $("notificationTitle")
+            .value
+            .trim();
+
+
+        const message =
+          $("notificationMessage")
+            .value
+            .trim();
+
+
+        if (
+          !uid ||
+          !title ||
+          !message
+        ) {
+
+          toast(
+            "Please fill all fields"
+          );
+
+          return;
+        }
+
+
+        if (
+          uid.toUpperCase() ===
+          "ALL"
+        ) {
+
+          /*
+            Firestore batches have a
+            write limit. Use chunks.
+          */
+
+          for (
+            let i = 0;
+            i < users.length;
+            i += 450
+          ) {
+
+            const batch =
+              writeBatch(db);
+
+
+            users
+              .slice(
+                i,
+                i + 450
+              )
+              .forEach(user => {
+
+                batch.set(
+
+                  doc(
+                    db,
+                    "notifications",
+                    user.id +
+                    "_admin_" +
+                    Date.now() +
+                    "_" +
+                    i
+                  ),
+
+                  {
+
+                    uid:
+                      user.id,
+
+                    title:
+                      title,
+
+                    message:
+                      message,
+
+                    type:
+                      "admin",
+
+                    read:
+                      false,
+
+                    createdAt:
+                      serverTimestamp()
+
+                  }
+
+                );
+
+              });
+
+
+            await batch.commit();
+
+          }
+
+        }
+        else {
+
+          await addDoc(
+
+            collection(
+              db,
+              "notifications"
+            ),
+
+            {
+
+              uid:
+                uid,
+
+              title:
+                title,
+
+              message:
+                message,
+
+              type:
+                "admin",
+
+              read:
+                false,
+
+              createdAt:
+                serverTimestamp()
 
             }
+
+          );
+
+        }
+
+
+        closeModal();
+
+
+        toast(
+          "Notification sent"
+        );
+
+      };
+
+  }
+
+
+  /* =====================================================
+     SUPPORT
+  ===================================================== */
+
+  function renderSupport() {
+
+    const sorted =
+      [...supportMessages].sort(
+        (a,b) =>
+          (
+            convertDate(
+              b.createdAt
+            ) || 0
+          ) -
+          (
+            convertDate(
+              a.createdAt
+            ) || 0
+          )
+      );
+
+
+    if (!sorted.length) {
+
+      $("supportTable")
+        .innerHTML = `
+
+          <tr>
+
+            <td colspan="5">
+
+              <div class="empty">
+                No support messages
+              </div>
+
+            </td>
+
+          </tr>
+
+        `;
+
+      return;
+    }
+
+
+    $("supportTable")
+      .innerHTML =
+
+      sorted.map(message => {
+
+        const uid =
+          getUID(message);
+
+
+        const user =
+          findUser(uid);
+
+
+        const role =
+          message.senderRole ||
+          "user";
+
+
+        return `
+
+          <tr>
+
+            <td>
+              ${escapeHTML(
+                user.name ||
+                message.senderName ||
+                uid
+              )}
+            </td>
+
+
+            <td>
+
+              <span
+                class="pill ${
+                  role === "admin"
+                    ? "green"
+                    : ""
+                }"
+              >
+                ${escapeHTML(
+                  role
+                )}
+              </span>
+
+            </td>
+
+
+            <td>
+              ${escapeHTML(
+                message.message ||
+                ""
+              )}
+            </td>
+
+
+            <td>
+              ${formatDate(
+                message.createdAt
+              )}
+            </td>
+
+
+            <td>
+
+              ${
+                role !== "admin"
+
+                ?
+
+                `
+                  <button
+                    class="btn secondary"
+                    data-reply-user="${escapeHTML(
+                      uid
+                    )}"
+                  >
+                    Reply
+                  </button>
+                `
+
+                :
+
+                "—"
+              }
+
+            </td>
+
+          </tr>
+
+        `;
+
+      }).join("");
+
+  }
+
+
+  /* =====================================================
+     SUPPORT REPLY
+  ===================================================== */
+
+  function replySupport(
+    uid
+  ) {
+
+    showModal(`
+
+      <h2>Reply to User</h2>
+
+      <p
+        class="muted"
+        style="margin-top:7px"
+      >
+        UID:
+        ${escapeHTML(uid)}
+      </p>
+
+
+      <textarea
+        id="supportReply"
+        class="field"
+        placeholder="Write your reply..."
+      ></textarea>
+
+
+      <button
+        id="sendSupportReply"
+        class="btn"
+        style="margin-top:13px"
+      >
+        Send Reply
+      </button>
+
+    `);
+
+
+    $("sendSupportReply").onclick =
+      async () => {
+
+        const message =
+          $("supportReply")
+            .value
+            .trim();
+
+
+        if (!message) {
+
+          toast(
+            "Write a message first"
+          );
+
+          return;
+        }
+
+
+        await addDoc(
+
+          collection(
+            db,
+            "supportMessages"
+          ),
+
+          {
+
+            uid:
+
+              uid,
+
+            senderUid:
+
+              "admin",
+
+            senderName:
+
+              "MVBD Admin",
+
+            senderRole:
+
+              "admin",
+
+            message:
+
+              message,
+
+            createdAt:
+
+              serverTimestamp()
+
+          }
+
+        );
+
+
+        closeModal();
+
+
+        toast(
+          "Support reply sent"
+        );
+
+      };
+
+  }
+
+
+  /* =====================================================
+     SETTINGS
+  ===================================================== */
+
+  $("saveSettings").onclick =
+    async () => {
+
+      await setDoc(
+
+        doc(
+          db,
+          "settings",
+          "mvbd"
+        ),
+
+        {
+
+          paymentNumber:
+            $("paymentNumber")
+              .value
+              .trim(),
+
+          currency:
+            $("currency")
+              .value
+              .trim(),
+
+          monthlyPrice:
+            Number(
+              $("monthlyPrice")
+                .value
+            ) || 20,
+
+          twoMonthPrice:
+            Number(
+              $("twoMonthPrice")
+                .value
+            ) || 35,
+
+          threeMonthPrice:
+            Number(
+              $("threeMonthPrice")
+                .value
+            ) || 50,
+
+          trialDays:
+            Number(
+              $("trialDays")
+                .value
+            ) || 7,
+
+          updatedAt:
+            serverTimestamp()
+
+        },
+
+        {
+          merge:
+            true
+        }
+
+      );
+
+
+      toast(
+        "Settings saved"
+      );
+
+    };
+
+
+  /* =====================================================
+     NAVIGATION
+  ===================================================== */
+
+  function openPage(
+    page
+  ) {
+
+    document
+      .querySelectorAll(".view")
+      .forEach(section => {
+
+        section.classList.toggle(
+          "active",
+          section.id === page
+        );
+
+      });
+
+
+    document
+      .querySelectorAll(".nav-btn")
+      .forEach(button => {
+
+        button.classList.toggle(
+          "active",
+          button.dataset.page ===
+          page
+        );
+
+      });
+
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+
+  }
+
+
+  document.addEventListener(
+    "click",
+    event => {
+
+      const pageButton =
+        event.target.closest(
+          "[data-page]"
+        );
+
+
+      if (pageButton) {
+
+        openPage(
+          pageButton.dataset.page
+        );
+
+      }
+
+
+      const editButton =
+        event.target.closest(
+          "[data-edit-user]"
+        );
+
+
+      if (editButton) {
+
+        editUser(
+          editButton.dataset.editUser
+        );
+
+      }
+
+
+      const approveButton =
+        event.target.closest(
+          "[data-approve]"
+        );
+
+
+      if (approveButton) {
+
+        approvePayment(
+          approveButton.dataset.approve
+        )
+        .catch(error => {
+
+          console.error(error);
+
+          toast(
+            "Payment approval failed"
           );
 
         });
 
+      }
 
-      document
-        .getElementById("closeSection")
-        .addEventListener(
-          "click",
-          () => {
 
-            sectionMessage.style.display =
-              "none";
-
-          }
+      const rejectButton =
+        event.target.closest(
+          "[data-reject]"
         );
 
 
-      /*
-       * Keep dashboard available to admin.js
-       */
+      if (rejectButton) {
 
-      window.MVBDAdmin = {
+        rejectPayment(
+          rejectButton.dataset.reject
+        )
+        .catch(error => {
 
-        isUnlocked: () =>
-          dashboard.classList.contains(
-            "visible"
-          ),
+          console.error(error);
 
-        openSection: section => {
+          toast(
+            "Payment rejection failed"
+          );
 
-          const button =
-            document.querySelector(
-              `[data-section="${section}"]`
-            );
+        });
 
-          button?.click();
+      }
+
+
+      const extendButton =
+        event.target.closest(
+          "[data-extend-sub]"
+        );
+
+
+      if (extendButton) {
+
+        extendSubscription(
+          extendButton.dataset.extendSub
+        );
+
+      }
+
+
+      const replyButton =
+        event.target.closest(
+          "[data-reply-user]"
+        );
+
+
+      if (replyButton) {
+
+        replySupport(
+          replyButton.dataset.replyUser
+        );
+
+      }
+
+    }
+  );
+
+
+  $("userSearch")
+    .addEventListener(
+      "input",
+      renderUsers
+    );
+
+
+  $("newNotification")
+    .addEventListener(
+      "click",
+      newNotification
+    );
+
+
+  $("modalClose")
+    .addEventListener(
+      "click",
+      closeModal
+    );
+
+
+  $("modal")
+    .addEventListener(
+      "click",
+      event => {
+
+        if (
+          event.target.id ===
+          "modal"
+        ) {
+
+          closeModal();
 
         }
 
-      };
+      }
+    );
 
 
-    })();
+  /* =====================================================
+     PIN LOGIN
+  ===================================================== */
 
-  </script>
+  function unlockAdmin() {
+
+    const pin =
+      $("pinInput")
+        .value
+        .trim();
 
 
+    if (
+      pin !==
+      ADMIN_PIN
+    ) {
 
-  <!-- ==================================================
-       FIREBASE / ADMIN SCRIPT
-  =================================================== -->
+      $("pinError")
+        .textContent =
+        "Incorrect admin PIN.";
 
-  <script
-    type="module"
-    src="./admin.js"
-  ></script>
+      return;
+    }
 
+
+    $("pinError")
+      .textContent =
+      "";
+
+
+    $("pinScreen")
+      .classList
+      .add("hidden");
+
+
+    $("app")
+      .style
+      .display =
+      "block";
+
+
+    startRealtime();
+
+
+    toast(
+      "Admin panel unlocked"
+    );
+
+  }
+
+
+  $("enterAdmin")
+    .addEventListener(
+      "click",
+      unlockAdmin
+    );
+
+
+  $("pinInput")
+    .addEventListener(
+      "keydown",
+      event => {
+
+        if (
+          event.key ===
+          "Enter"
+        ) {
+
+          unlockAdmin();
+
+        }
+
+      }
+    );
+
+
+  /* =====================================================
+     LOCK
+  ===================================================== */
+
+  $("lockAdmin")
+    .addEventListener(
+      "click",
+      () => {
+
+        unsubscribeFunctions
+          .forEach(
+            unsubscribe => {
+
+              try {
+                unsubscribe();
+              }
+              catch {}
+
+            }
+          );
+
+
+        unsubscribeFunctions =
+          [];
+
+
+        location.reload();
+
+      }
+    );
+
+</script>
 
 </body>
 </html>
