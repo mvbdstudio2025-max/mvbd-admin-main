@@ -1,0 +1,2646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"
+  >
+
+  <meta name="theme-color" content="#030504">
+
+  <title>MVBD Admin</title>
+
+  <style>
+
+    /* =====================================================
+       MVBD ADMIN — CORE
+    ====================================================== */
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --bg: #030504;
+      --green: #27e87d;
+      --green2: #0aa957;
+      --white: #ffffff;
+      --muted: #89928d;
+      --glass: rgba(255,255,255,.055);
+      --border: rgba(255,255,255,.105);
+    }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+      background: var(--bg);
+      color: white;
+      font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "SF Pro Display",
+        "Segoe UI",
+        sans-serif;
+      overflow-x: hidden;
+    }
+
+    body {
+      min-height: 100vh;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+
+    /* =====================================================
+       GLOBAL BACKGROUND
+    ====================================================== */
+
+    .mvbd-bg {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      background:
+        radial-gradient(
+          circle at 50% 15%,
+          rgba(22, 206, 104, .12),
+          transparent 32%
+        ),
+        radial-gradient(
+          circle at 15% 90%,
+          rgba(0, 126, 70, .10),
+          transparent 35%
+        ),
+        #030504;
+    }
+
+    .mvbd-grid {
+      position: absolute;
+      inset: -50%;
+      opacity: .13;
+      transform: perspective(600px) rotateX(65deg);
+      background-image:
+        linear-gradient(
+          rgba(255,255,255,.045) 1px,
+          transparent 1px
+        ),
+        linear-gradient(
+          90deg,
+          rgba(255,255,255,.045) 1px,
+          transparent 1px
+        );
+      background-size: 48px 48px;
+      animation: gridMove 18s linear infinite;
+    }
+
+    @keyframes gridMove {
+      from {
+        transform:
+          perspective(600px)
+          rotateX(65deg)
+          translateY(0);
+      }
+
+      to {
+        transform:
+          perspective(600px)
+          rotateX(65deg)
+          translateY(48px);
+      }
+    }
+
+
+    .light-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: .35;
+    }
+
+    .orb-a {
+      width: 240px;
+      height: 240px;
+      background: #0ca95a;
+      top: -100px;
+      left: -90px;
+      animation: floatA 9s ease-in-out infinite;
+    }
+
+    .orb-b {
+      width: 190px;
+      height: 190px;
+      background: #19e477;
+      right: -80px;
+      bottom: 8%;
+      opacity: .18;
+      animation: floatB 11s ease-in-out infinite;
+    }
+
+    @keyframes floatA {
+      50% {
+        transform: translate(70px, 100px) scale(1.2);
+      }
+    }
+
+    @keyframes floatB {
+      50% {
+        transform: translate(-80px, -60px) scale(1.15);
+      }
+    }
+
+
+    /* =====================================================
+       LOCK SCREEN
+    ====================================================== */
+
+    #lockScreen {
+      position: relative;
+      z-index: 10;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 25px;
+      transition:
+        opacity .7s ease,
+        transform .8s cubic-bezier(.2,.8,.2,1),
+        visibility .7s;
+    }
+
+    #lockScreen.unlocked {
+      opacity: 0;
+      transform: scale(1.08);
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+
+    /* =====================================================
+       UNIQUE MVBD LOGIN CARD
+    ====================================================== */
+
+    .login-card {
+      width: min(420px, 100%);
+      position: relative;
+      padding: 38px 28px 30px;
+      border-radius: 36px;
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(255,255,255,.10),
+          rgba(255,255,255,.025)
+        );
+
+      border: 1px solid rgba(255,255,255,.12);
+
+      backdrop-filter: blur(32px) saturate(150%);
+      -webkit-backdrop-filter: blur(32px) saturate(150%);
+
+      box-shadow:
+        0 30px 90px rgba(0,0,0,.65),
+        inset 0 1px rgba(255,255,255,.10);
+
+      text-align: center;
+      overflow: hidden;
+    }
+
+
+    .login-card::before {
+      content: "";
+      position: absolute;
+      width: 280px;
+      height: 280px;
+      left: 50%;
+      top: -210px;
+      transform: translateX(-50%);
+
+      background: #20e778;
+      opacity: .14;
+      filter: blur(70px);
+      border-radius: 50%;
+    }
+
+
+    .login-card::after {
+      content: "";
+      position: absolute;
+      width: 180%;
+      height: 1px;
+      left: -40%;
+      top: 42%;
+      background:
+        linear-gradient(
+          90deg,
+          transparent,
+          rgba(255,255,255,.15),
+          transparent
+        );
+      transform: rotate(-12deg);
+    }
+
+
+    /* =====================================================
+       M LOGO
+    ====================================================== */
+
+    .hero-logo {
+      width: 92px;
+      height: 92px;
+      margin: 0 auto 22px;
+
+      position: relative;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border-radius: 28px;
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(52,242,137,.95),
+          rgba(4,126,65,.72)
+        );
+
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.15),
+        0 18px 50px rgba(24,222,113,.25),
+        inset 0 1px rgba(255,255,255,.35);
+
+      transform: rotate(-4deg);
+
+      animation:
+        logoFloat 4s ease-in-out infinite;
+    }
+
+
+    .hero-logo::before {
+      content: "";
+      position: absolute;
+      inset: 2px;
+
+      border-radius: 26px;
+
+      background:
+        linear-gradient(
+          125deg,
+          rgba(255,255,255,.25),
+          transparent 40%
+        );
+    }
+
+
+    .hero-logo::after {
+      content: "";
+      position: absolute;
+      width: 50px;
+      height: 140%;
+      background: rgba(255,255,255,.20);
+      transform: rotate(30deg) translateX(-100px);
+      filter: blur(12px);
+      animation: logoShine 4s ease-in-out infinite;
+    }
+
+
+    .hero-m {
+      position: relative;
+      z-index: 2;
+
+      font-size: 55px;
+      font-weight: 900;
+      letter-spacing: -7px;
+      line-height: 1;
+
+      transform: skew(-8deg);
+
+      color: #03190d;
+
+      text-shadow:
+        0 1px rgba(255,255,255,.2);
+    }
+
+
+    @keyframes logoFloat {
+      0%,100% {
+        transform: rotate(-4deg) translateY(0);
+      }
+
+      50% {
+        transform: rotate(2deg) translateY(-7px);
+      }
+    }
+
+
+    @keyframes logoShine {
+      0%,
+      30% {
+        transform:
+          rotate(30deg)
+          translateX(-120px);
+      }
+
+      60%,
+      100% {
+        transform:
+          rotate(30deg)
+          translateX(170px);
+      }
+    }
+
+
+    /* =====================================================
+       BRAND
+    ====================================================== */
+
+    .brand {
+      position: relative;
+      z-index: 2;
+    }
+
+    .brand-title {
+      font-size: 27px;
+      font-weight: 800;
+      letter-spacing: -.8px;
+    }
+
+    .brand-title .green {
+      color: #27e87d;
+    }
+
+    .brand-title .white {
+      color: #fff;
+    }
+
+    .brand-subtitle {
+      margin-top: 7px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: #79827e;
+    }
+
+
+    /* =====================================================
+       WELCOME
+    ====================================================== */
+
+    .welcome {
+      position: relative;
+      z-index: 2;
+      margin-top: 34px;
+    }
+
+    .welcome h1 {
+      font-size: 25px;
+      font-weight: 750;
+      letter-spacing: -.7px;
+    }
+
+    .welcome p {
+      margin-top: 7px;
+      font-size: 13px;
+      color: #7f8883;
+    }
+
+
+    /* =====================================================
+       PIN DISPLAY
+    ====================================================== */
+
+    .pin-container {
+      position: relative;
+      z-index: 2;
+      margin-top: 28px;
+    }
+
+
+    .pin-display {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+    }
+
+
+    .pin-dot {
+      width: 14px;
+      height: 14px;
+
+      border-radius: 50%;
+
+      background: rgba(255,255,255,.08);
+
+      border: 1px solid rgba(255,255,255,.14);
+
+      transition:
+        transform .25s ease,
+        background .25s ease,
+        box-shadow .25s ease;
+    }
+
+
+    .pin-dot.active {
+      background: #27e87d;
+      border-color: #27e87d;
+
+      transform: scale(1.18);
+
+      box-shadow:
+        0 0 15px rgba(39,232,125,.6);
+    }
+
+
+    .pin-input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+
+    /* =====================================================
+       NUMBER PAD
+    ====================================================== */
+
+    .number-pad {
+      position: relative;
+      z-index: 2;
+
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+
+      margin: 28px auto 0;
+
+      max-width: 285px;
+    }
+
+
+    .number-key {
+      height: 57px;
+
+      border-radius: 18px;
+
+      color: white;
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(255,255,255,.075),
+          rgba(255,255,255,.025)
+        );
+
+      border: 1px solid rgba(255,255,255,.08);
+
+      box-shadow:
+        inset 0 1px rgba(255,255,255,.05);
+
+      transition:
+        transform .12s ease,
+        background .2s ease,
+        border-color .2s ease;
+    }
+
+
+    .number-key:active {
+      transform: scale(.91);
+
+      background:
+        rgba(39,232,125,.16);
+
+      border-color:
+        rgba(39,232,125,.45);
+    }
+
+
+    .number-key .number {
+      font-size: 20px;
+      font-weight: 650;
+    }
+
+
+    .number-key .letters {
+      display: block;
+      margin-top: 2px;
+
+      font-size: 7px;
+      letter-spacing: 2px;
+      color: #66706b;
+    }
+
+
+    .clear-key {
+      color: #87918b;
+    }
+
+
+    /* =====================================================
+       STATUS
+    ====================================================== */
+
+    .login-status {
+      position: relative;
+      z-index: 2;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+
+      margin-top: 25px;
+
+      color: #68736d;
+
+      font-size: 9px;
+      letter-spacing: 2px;
+      font-weight: 700;
+    }
+
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #27e87d;
+      box-shadow: 0 0 10px #27e87d;
+
+      animation: statusPulse 1.8s infinite;
+    }
+
+
+    @keyframes statusPulse {
+      50% {
+        opacity: .35;
+        transform: scale(.7);
+      }
+    }
+
+
+    /* =====================================================
+       ERROR
+    ====================================================== */
+
+    .pin-error {
+      min-height: 18px;
+
+      margin-top: 9px;
+
+      color: #ff6575;
+
+      font-size: 11px;
+      font-weight: 600;
+
+      opacity: 0;
+      transform: translateY(-4px);
+
+      transition: .2s ease;
+    }
+
+
+    .pin-error.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+
+    .shake {
+      animation: shake .45s ease;
+    }
+
+
+    @keyframes shake {
+      0%,100% {
+        transform: translateX(0);
+      }
+
+      20% {
+        transform: translateX(-12px);
+      }
+
+      40% {
+        transform: translateX(10px);
+      }
+
+      60% {
+        transform: translateX(-7px);
+      }
+
+      80% {
+        transform: translateX(5px);
+      }
+    }
+
+
+    /* =====================================================
+       UNLOCK ANIMATION
+    ====================================================== */
+
+    .login-card.success {
+      animation: unlockCard .85s cubic-bezier(.2,.8,.2,1) forwards;
+    }
+
+
+    @keyframes unlockCard {
+      0% {
+        transform: scale(1);
+      }
+
+      45% {
+        transform: scale(.96);
+      }
+
+      100% {
+        transform: scale(1.18);
+        opacity: 0;
+      }
+    }
+
+
+    .unlock-flash {
+      position: fixed;
+      z-index: 100;
+
+      inset: 0;
+
+      background:
+        radial-gradient(
+          circle,
+          rgba(39,232,125,.32),
+          transparent 40%
+        );
+
+      opacity: 0;
+      pointer-events: none;
+    }
+
+
+    .unlock-flash.active {
+      animation: flash .95s ease forwards;
+    }
+
+
+    @keyframes flash {
+      0% {
+        opacity: 0;
+      }
+
+      25% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0;
+      }
+    }
+
+
+    /* =====================================================
+       DASHBOARD
+    ====================================================== */
+
+    #dashboard {
+      position: relative;
+      z-index: 5;
+
+      min-height: 100vh;
+
+      opacity: 0;
+      visibility: hidden;
+
+      transform: translateY(30px) scale(.98);
+
+      transition:
+        opacity .8s ease,
+        transform .9s cubic-bezier(.2,.8,.2,1),
+        visibility .8s;
+    }
+
+
+    #dashboard.visible {
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+    }
+
+
+    .dashboard-wrap {
+      width: min(1180px, 100%);
+      margin: auto;
+      padding: 25px 20px 110px;
+    }
+
+
+    /* =====================================================
+       DASHBOARD HEADER
+    ====================================================== */
+
+    .dash-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      padding: 16px 18px;
+
+      border: 1px solid var(--border);
+      border-radius: 25px;
+
+      background: rgba(255,255,255,.045);
+
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+    }
+
+
+    .dash-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+
+    .dash-logo {
+      width: 43px;
+      height: 43px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border-radius: 14px;
+
+      background:
+        linear-gradient(
+          145deg,
+          #2bf18a,
+          #07924e
+        );
+
+      color: #03190d;
+
+      font-size: 25px;
+      font-weight: 900;
+
+      box-shadow:
+        0 10px 30px rgba(39,232,125,.18);
+    }
+
+
+    .dash-name {
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+
+    .dash-name span {
+      color: #27e87d;
+    }
+
+
+    .dash-label {
+      margin-top: 3px;
+
+      color: #68716d;
+
+      font-size: 8px;
+      letter-spacing: 1.7px;
+      font-weight: 700;
+    }
+
+
+    .firebase-pill {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+
+      padding: 9px 12px;
+
+      border-radius: 999px;
+
+      background: rgba(39,232,125,.07);
+
+      border: 1px solid rgba(39,232,125,.12);
+
+      color: #6f7b74;
+
+      font-size: 9px;
+    }
+
+
+    /* =====================================================
+       DASHBOARD HERO
+    ====================================================== */
+
+    .dash-hero {
+      margin-top: 25px;
+
+      padding: 30px;
+
+      border-radius: 30px;
+
+      background:
+        radial-gradient(
+          circle at 80% 0%,
+          rgba(39,232,125,.12),
+          transparent 35%
+        ),
+        rgba(255,255,255,.035);
+
+      border: 1px solid var(--border);
+    }
+
+
+    .dash-kicker {
+      color: #27e87d;
+
+      font-size: 9px;
+      letter-spacing: 3px;
+      font-weight: 800;
+    }
+
+
+    .dash-hero h1 {
+      margin-top: 9px;
+
+      font-size: clamp(32px, 6vw, 52px);
+      letter-spacing: -2px;
+      line-height: 1;
+    }
+
+
+    .dash-hero p {
+      margin-top: 12px;
+
+      color: #78827c;
+      font-size: 13px;
+    }
+
+
+    /* =====================================================
+       STAT CARDS
+    ====================================================== */
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+
+      margin-top: 14px;
+    }
+
+
+    .stat {
+      padding: 20px;
+
+      min-height: 130px;
+
+      border-radius: 23px;
+
+      background: rgba(255,255,255,.045);
+
+      border: 1px solid var(--border);
+
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+
+      transition:
+        transform .25s ease,
+        border-color .25s ease;
+    }
+
+
+    .stat:hover {
+      transform: translateY(-4px);
+      border-color: rgba(39,232,125,.25);
+    }
+
+
+    .stat-icon {
+      font-size: 21px;
+    }
+
+
+    .stat-label {
+      display: block;
+
+      margin-top: 14px;
+
+      color: #717b75;
+
+      font-size: 10px;
+    }
+
+
+    .stat-value {
+      display: block;
+
+      margin-top: 3px;
+
+      font-size: 27px;
+      font-weight: 800;
+    }
+
+
+    /* =====================================================
+       CONTROL CARDS
+    ====================================================== */
+
+    .section-title {
+      margin-top: 32px;
+      margin-bottom: 13px;
+    }
+
+
+    .section-title span {
+      color: #69736e;
+
+      font-size: 8px;
+      letter-spacing: 3px;
+      font-weight: 800;
+    }
+
+
+    .section-title h2 {
+      margin-top: 5px;
+
+      font-size: 21px;
+      letter-spacing: -.6px;
+    }
+
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+
+    .control {
+      position: relative;
+
+      display: flex;
+      align-items: center;
+
+      gap: 14px;
+
+      min-height: 105px;
+
+      padding: 18px;
+
+      color: white;
+      text-align: left;
+
+      border-radius: 23px;
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(255,255,255,.065),
+          rgba(255,255,255,.025)
+        );
+
+      border: 1px solid var(--border);
+
+      transition:
+        transform .2s ease,
+        border-color .2s ease,
+        background .2s ease;
+    }
+
+
+    .control:hover {
+      transform: translateY(-4px);
+
+      border-color:
+        rgba(39,232,125,.25);
+
+      background:
+        rgba(39,232,125,.06);
+    }
+
+
+    .control-icon {
+      width: 48px;
+      height: 48px;
+
+      flex-shrink: 0;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border-radius: 16px;
+
+      background: rgba(39,232,125,.08);
+
+      font-size: 21px;
+    }
+
+
+    .control h3 {
+      font-size: 14px;
+      font-weight: 750;
+    }
+
+
+    .control p {
+      margin-top: 5px;
+
+      color: #69736e;
+
+      font-size: 10px;
+      line-height: 1.4;
+    }
+
+
+    .control-arrow {
+      margin-left: auto;
+
+      color: #5d6862;
+
+      font-size: 18px;
+    }
+
+
+    /* =====================================================
+       PAYMENT PANEL
+    ====================================================== */
+
+    .panel {
+      margin-top: 14px;
+
+      padding: 22px;
+
+      border-radius: 26px;
+
+      background: rgba(255,255,255,.04);
+
+      border: 1px solid var(--border);
+
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+    }
+
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+    }
+
+
+    .panel-head h2 {
+      font-size: 17px;
+    }
+
+
+    .panel-head p {
+      margin-top: 5px;
+
+      color: #69736e;
+
+      font-size: 10px;
+    }
+
+
+    .refresh {
+      padding: 9px 13px;
+
+      border-radius: 12px;
+
+      color: #9ca59f;
+
+      background: rgba(255,255,255,.06);
+
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+
+    .payment-list {
+      margin-top: 18px;
+    }
+
+
+    .empty {
+      padding: 40px 20px;
+
+      text-align: center;
+
+      border-radius: 18px;
+
+      background: rgba(0,0,0,.12);
+
+      border: 1px dashed rgba(255,255,255,.08);
+    }
+
+
+    .empty-icon {
+      font-size: 30px;
+    }
+
+
+    .empty h3 {
+      margin-top: 10px;
+
+      font-size: 14px;
+    }
+
+
+    .empty p {
+      margin-top: 5px;
+
+      color: #65706a;
+
+      font-size: 10px;
+    }
+
+
+    /* =====================================================
+       MOBILE NAV
+    ====================================================== */
+
+    .mobile-nav {
+      position: fixed;
+
+      z-index: 30;
+
+      left: 14px;
+      right: 14px;
+      bottom: 14px;
+
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+
+      padding: 8px;
+
+      border-radius: 23px;
+
+      background:
+        rgba(15,18,16,.78);
+
+      border: 1px solid rgba(255,255,255,.10);
+
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+
+      box-shadow:
+        0 20px 50px rgba(0,0,0,.5);
+    }
+
+
+    .nav-btn {
+      min-height: 48px;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      gap: 3px;
+
+      color: #59635e;
+
+      background: transparent;
+
+      border-radius: 16px;
+
+      font-size: 17px;
+    }
+
+
+    .nav-btn small {
+      font-size: 7px;
+      letter-spacing: .5px;
+    }
+
+
+    .nav-btn.active {
+      color: #27e87d;
+      background: rgba(39,232,125,.08);
+    }
+
+
+    /* =====================================================
+       DESKTOP
+    ====================================================== */
+
+    @media (min-width: 800px) {
+
+      .mobile-nav {
+        display: none;
+      }
+
+      .dashboard-wrap {
+        padding-bottom: 40px;
+      }
+
+    }
+
+
+    /* =====================================================
+       SMALL MOBILE
+    ====================================================== */
+
+    @media (max-width: 600px) {
+
+      .login-card {
+        padding: 34px 20px 25px;
+        border-radius: 32px;
+      }
+
+      .hero-logo {
+        width: 82px;
+        height: 82px;
+        border-radius: 25px;
+      }
+
+      .hero-m {
+        font-size: 48px;
+      }
+
+      .brand-title {
+        font-size: 24px;
+      }
+
+      .welcome {
+        margin-top: 28px;
+      }
+
+      .number-pad {
+        max-width: 270px;
+      }
+
+      .number-key {
+        height: 55px;
+      }
+
+      .dashboard-wrap {
+        padding:
+          14px
+          14px
+          105px;
+      }
+
+      .dash-header {
+        padding: 13px;
+      }
+
+      .firebase-pill {
+        padding: 8px;
+      }
+
+      .firebase-pill span:last-child {
+        display: none;
+      }
+
+      .dash-hero {
+        padding: 24px 20px;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .controls {
+        grid-template-columns: 1fr;
+      }
+
+      .stat {
+        min-height: 115px;
+      }
+
+    }
+
+
+    @media (max-width: 350px) {
+
+      .number-pad {
+        gap: 7px;
+      }
+
+      .number-key {
+        height: 51px;
+      }
+
+      .pin-display {
+        gap: 9px;
+      }
+
+    }
+
+  </style>
+</head>
+
+
+<body>
+
+
+  <!-- ==================================================
+       BACKGROUND
+  =================================================== -->
+
+  <div class="mvbd-bg">
+
+    <div class="mvbd-grid"></div>
+
+    <div class="light-orb orb-a"></div>
+
+    <div class="light-orb orb-b"></div>
+
+  </div>
+
+
+
+  <!-- ==================================================
+       UNLOCK FLASH
+  =================================================== -->
+
+  <div
+    id="unlockFlash"
+    class="unlock-flash"
+  ></div>
+
+
+
+  <!-- ==================================================
+       LOCK SCREEN
+  =================================================== -->
+
+  <main id="lockScreen">
+
+
+    <section
+      id="loginCard"
+      class="login-card"
+    >
+
+
+      <!-- LOGO -->
+
+      <div class="hero-logo">
+
+        <span class="hero-m">
+          M
+        </span>
+
+      </div>
+
+
+      <!-- BRAND -->
+
+      <div class="brand">
+
+        <div class="brand-title">
+
+          <span class="green">
+            MoviesVerse
+          </span>
+
+          <span class="white">
+            BD
+          </span>
+
+        </div>
+
+
+        <div class="brand-subtitle">
+          ADMIN CONTROL CENTER
+        </div>
+
+      </div>
+
+
+      <!-- WELCOME -->
+
+      <div class="welcome">
+
+        <h1>
+          Private Workspace
+        </h1>
+
+        <p>
+          Enter your 4-digit access code
+        </p>
+
+      </div>
+
+
+      <!-- PIN -->
+
+      <div class="pin-container">
+
+
+        <div
+          id="pinDisplay"
+          class="pin-display"
+        >
+
+          <span class="pin-dot"></span>
+          <span class="pin-dot"></span>
+          <span class="pin-dot"></span>
+          <span class="pin-dot"></span>
+
+        </div>
+
+
+        <input
+          id="pinInput"
+          class="pin-input"
+          type="tel"
+          inputmode="numeric"
+          maxlength="4"
+          autocomplete="off"
+        >
+
+
+      </div>
+
+
+      <div
+        id="pinError"
+        class="pin-error"
+      >
+        Incorrect access code
+      </div>
+
+
+      <!-- NUMBER PAD -->
+
+      <div class="number-pad">
+
+
+        <button
+          class="number-key"
+          data-number="1"
+          type="button"
+        >
+          <span class="number">1</span>
+        </button>
+
+
+        <button
+          class="number-key"
+          data-number="2"
+          type="button"
+        >
+          <span class="number">2</span>
+          <span class="letters">ABC</span>
+        </button>
+
+
+        <button
+          class="number-key"
+          data-number="3"
+          type="button"
+        >
+          <span class="number">3</span>
+          <span class="letters">DEF</span>
+        </button>
+
+
+        <button
+          class="number-key"
+          data-number="4"
+          type="button"
+        >
+          <span class="number">4</span>
+          <span class="letters">GHI</span>
+        </button>
+
+
+        <button
+          class="number-key"
+          data-number="5"
+          type="button"
+        >
+          <span class="number">5</span>
+          <span class="letters">JKL</span>
+        </button>
+
+
+        <button
+          class="number-key"
+          data-number="6"
+          type="button"
+        >
+          <span class="number">6</span>
+          <span class="letters">MNO</span>
+        </button>
+
+
+        <button
+          class="number-key"
+          data-number="7"
+          type="button"
+        >
+          <span class="number">7</span>
+          <span class="letters">PQRS</span>
+        </button>
+
+
+        <button
+          class="number-key"
+          data-number="8"
+          type="button"
+        >
+          <span class="number">8</span>
+          <span class="letters">TUV</span>
+        </button>
+
+
+        <button
+          class="number-key"
+          data-number="9"
+          type="button"
+        >
+          <span class="number">9</span>
+          <span class="letters">WXYZ</span>
+        </button>
+
+
+        <button
+          class="number-key clear-key"
+          id="clearPin"
+          type="button"
+        >
+          C
+        </button>
+
+
+        <button
+          class="number-key"
+          data-number="0"
+          type="button"
+        >
+          <span class="number">0</span>
+        </button>
+
+
+        <button
+          class="number-key clear-key"
+          id="deletePin"
+          type="button"
+        >
+          ←
+        </button>
+
+
+      </div>
+
+
+      <!-- STATUS -->
+
+      <div class="login-status">
+
+        <span class="status-dot"></span>
+
+        <span>
+          MVBD SYSTEM READY
+        </span>
+
+      </div>
+
+
+    </section>
+
+  </main>
+
+
+
+  <!-- ==================================================
+       DASHBOARD
+  =================================================== -->
+
+  <main id="dashboard">
+
+
+    <div class="dashboard-wrap">
+
+
+      <!-- HEADER -->
+
+      <header class="dash-header">
+
+
+        <div class="dash-brand">
+
+          <div class="dash-logo">
+            M
+          </div>
+
+
+          <div>
+
+            <div class="dash-name">
+              MoviesVerse<span>BD</span>
+            </div>
+
+            <div class="dash-label">
+              ADMIN CONTROL CENTER
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="firebase-pill">
+
+          <span class="status-dot"></span>
+
+          <span>
+            Firebase Connected
+          </span>
+
+        </div>
+
+
+      </header>
+
+
+
+      <!-- HERO -->
+
+      <section class="dash-hero">
+
+        <div class="dash-kicker">
+          MVBD ADMIN
+        </div>
+
+        <h1>
+          Control Center
+        </h1>
+
+        <p>
+          Manage your MoviesVerseBD platform from one place.
+        </p>
+
+      </section>
+
+
+
+      <!-- STATS -->
+
+      <section class="stats">
+
+
+        <article class="stat">
+
+          <div class="stat-icon">
+            👥
+          </div>
+
+          <span class="stat-label">
+            Total Users
+          </span>
+
+          <strong
+            id="totalUsers"
+            class="stat-value"
+          >
+            0
+          </strong>
+
+        </article>
+
+
+        <article class="stat">
+
+          <div class="stat-icon">
+            💳
+          </div>
+
+          <span class="stat-label">
+            Pending Payments
+          </span>
+
+          <strong
+            id="pendingPayments"
+            class="stat-value"
+          >
+            0
+          </strong>
+
+        </article>
+
+
+        <article class="stat">
+
+          <div class="stat-icon">
+            ⭐
+          </div>
+
+          <span class="stat-label">
+            Premium Users
+          </span>
+
+          <strong
+            id="premiumUsers"
+            class="stat-value"
+          >
+            0
+          </strong>
+
+        </article>
+
+
+        <article class="stat">
+
+          <div class="stat-icon">
+            🔔
+          </div>
+
+          <span class="stat-label">
+            Notifications
+          </span>
+
+          <strong
+            id="notificationCount"
+            class="stat-value"
+          >
+            0
+          </strong>
+
+        </article>
+
+
+      </section>
+
+
+
+      <!-- CONTROLS -->
+
+      <div class="section-title">
+
+        <span>
+          MANAGEMENT
+        </span>
+
+        <h2>
+          Platform Controls
+        </h2>
+
+      </div>
+
+
+      <section class="controls">
+
+
+        <button
+          class="control"
+          data-section="users"
+          type="button"
+        >
+
+          <div class="control-icon">
+            👥
+          </div>
+
+          <div>
+
+            <h3>
+              Users
+            </h3>
+
+            <p>
+              View and manage all MVBD users
+            </p>
+
+          </div>
+
+          <span class="control-arrow">
+            →
+          </span>
+
+        </button>
+
+
+
+        <button
+          class="control"
+          data-section="payments"
+          type="button"
+        >
+
+          <div class="control-icon">
+            💳
+          </div>
+
+          <div>
+
+            <h3>
+              Payment Requests
+            </h3>
+
+            <p>
+              Review pending subscription payments
+            </p>
+
+          </div>
+
+          <span class="control-arrow">
+            →
+          </span>
+
+        </button>
+
+
+
+        <button
+          class="control"
+          data-section="subscriptions"
+          type="button"
+        >
+
+          <div class="control-icon">
+            ⭐
+          </div>
+
+          <div>
+
+            <h3>
+              Subscriptions
+            </h3>
+
+            <p>
+              Manage premium memberships
+            </p>
+
+          </div>
+
+          <span class="control-arrow">
+            →
+          </span>
+
+        </button>
+
+
+
+        <button
+          class="control"
+          data-section="notifications"
+          type="button"
+        >
+
+          <div class="control-icon">
+            🔔
+          </div>
+
+          <div>
+
+            <h3>
+              Notifications
+            </h3>
+
+            <p>
+              Send updates to your users
+            </p>
+
+          </div>
+
+          <span class="control-arrow">
+            →
+          </span>
+
+        </button>
+
+
+
+        <button
+          class="control"
+          data-section="support"
+          type="button"
+        >
+
+          <div class="control-icon">
+            💬
+          </div>
+
+          <div>
+
+            <h3>
+              Support Chat
+            </h3>
+
+            <p>
+              Communicate with users in realtime
+            </p>
+
+          </div>
+
+          <span class="control-arrow">
+            →
+          </span>
+
+        </button>
+
+
+
+        <button
+          class="control"
+          data-section="referrals"
+          type="button"
+        >
+
+          <div class="control-icon">
+            🎁
+          </div>
+
+          <div>
+
+            <h3>
+              Referrals
+            </h3>
+
+            <p>
+              View referral activity and users
+            </p>
+
+          </div>
+
+          <span class="control-arrow">
+            →
+          </span>
+
+        </button>
+
+
+
+        <button
+          class="control"
+          data-section="movies"
+          type="button"
+        >
+
+          <div class="control-icon">
+            🎬
+          </div>
+
+          <div>
+
+            <h3>
+              Movies
+            </h3>
+
+            <p>
+              Manage movie information
+            </p>
+
+          </div>
+
+          <span class="control-arrow">
+            →
+          </span>
+
+        </button>
+
+
+
+        <button
+          class="control"
+          data-section="settings"
+          type="button"
+        >
+
+          <div class="control-icon">
+            ⚙️
+          </div>
+
+          <div>
+
+            <h3>
+              Settings
+            </h3>
+
+            <p>
+              Admin panel preferences
+            </p>
+
+          </div>
+
+          <span class="control-arrow">
+            →
+          </span>
+
+        </button>
+
+
+      </section>
+
+
+
+      <!-- PAYMENTS -->
+
+      <div class="section-title">
+
+        <span>
+          FIREBASE REALTIME
+        </span>
+
+        <h2>
+          Recent Payments
+        </h2>
+
+      </div>
+
+
+      <section class="panel">
+
+
+        <div class="panel-head">
+
+          <div>
+
+            <h2>
+              Payment Requests
+            </h2>
+
+            <p>
+              Incoming requests will appear here.
+            </p>
+
+          </div>
+
+
+          <button
+            id="refreshPayments"
+            class="refresh"
+            type="button"
+          >
+            ↻ Refresh
+          </button>
+
+        </div>
+
+
+        <div
+          id="paymentList"
+          class="payment-list"
+        >
+
+          <div class="empty">
+
+            <div class="empty-icon">
+              💳
+            </div>
+
+            <h3>
+              No payment requests
+            </h3>
+
+            <p>
+              Firebase payment requests will appear automatically.
+            </p>
+
+          </div>
+
+        </div>
+
+
+      </section>
+
+
+    </div>
+
+
+
+    <!-- MOBILE NAV -->
+
+    <nav class="mobile-nav">
+
+
+      <button
+        class="nav-btn active"
+        data-section="dashboard"
+        type="button"
+      >
+
+        ⌂
+
+        <small>
+          Home
+        </small>
+
+      </button>
+
+
+      <button
+        class="nav-btn"
+        data-section="users"
+        type="button"
+      >
+
+        ♙
+
+        <small>
+          Users
+        </small>
+
+      </button>
+
+
+      <button
+        class="nav-btn"
+        data-section="payments"
+        type="button"
+      >
+
+        ▣
+
+        <small>
+          Payments
+        </small>
+
+      </button>
+
+
+      <button
+        class="nav-btn"
+        data-section="support"
+        type="button"
+      >
+
+        ◌
+
+        <small>
+          Support
+        </small>
+
+      </button>
+
+
+    </nav>
+
+
+  </main>
+
+
+
+  <!-- ==================================================
+       SECTION MESSAGE
+  =================================================== -->
+
+  <div
+    id="sectionMessage"
+    style="
+      position:fixed;
+      inset:0;
+      z-index:100;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      background:rgba(0,0,0,.65);
+      backdrop-filter:blur(15px);
+    "
+  >
+
+    <div
+      style="
+        width:min(380px,100%);
+        padding:30px;
+        text-align:center;
+        border-radius:28px;
+        background:rgba(20,24,21,.9);
+        border:1px solid rgba(255,255,255,.1);
+        box-shadow:0 30px 80px rgba(0,0,0,.6);
+      "
+    >
+
+      <div
+        id="sectionIcon"
+        style="font-size:38px;"
+      >
+        ✨
+      </div>
+
+      <h2
+        id="sectionTitle"
+        style="
+          margin-top:12px;
+          font-size:20px;
+        "
+      >
+        MVBD
+      </h2>
+
+      <p
+        id="sectionText"
+        style="
+          margin-top:8px;
+          color:#737d77;
+          font-size:12px;
+        "
+      >
+        Section ready.
+      </p>
+
+      <button
+        id="closeSection"
+        type="button"
+        style="
+          margin-top:22px;
+          padding:11px 20px;
+          border-radius:14px;
+          background:#27e87d;
+          color:#03190d;
+          font-weight:800;
+        "
+      >
+        Close
+      </button>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- ==================================================
+       PASSWORD SYSTEM
+  =================================================== -->
+
+  <script>
+
+    (() => {
+
+      const CORRECT_CODE = "8682";
+
+      let enteredCode = "";
+
+      const lockScreen =
+        document.getElementById("lockScreen");
+
+      const loginCard =
+        document.getElementById("loginCard");
+
+      const dashboard =
+        document.getElementById("dashboard");
+
+      const pinError =
+        document.getElementById("pinError");
+
+      const unlockFlash =
+        document.getElementById("unlockFlash");
+
+      const dots =
+        document.querySelectorAll(".pin-dot");
+
+      function updateDots() {
+
+        dots.forEach((dot, index) => {
+
+          dot.classList.toggle(
+            "active",
+            index < enteredCode.length
+          );
+
+        });
+
+      }
+
+
+      function clearError() {
+
+        pinError.classList.remove("show");
+
+      }
+
+
+      function addNumber(number) {
+
+        if (enteredCode.length >= 4) {
+          return;
+        }
+
+        enteredCode += number;
+
+        updateDots();
+
+        clearError();
+
+        if (enteredCode.length === 4) {
+
+          setTimeout(checkCode, 120);
+
+        }
+
+      }
+
+
+      function deleteNumber() {
+
+        enteredCode =
+          enteredCode.slice(0, -1);
+
+        updateDots();
+
+        clearError();
+
+      }
+
+
+      function clearNumber() {
+
+        enteredCode = "";
+
+        updateDots();
+
+        clearError();
+
+      }
+
+
+      function checkCode() {
+
+        if (enteredCode === CORRECT_CODE) {
+
+          unlock();
+
+        } else {
+
+          showError();
+
+        }
+
+      }
+
+
+      function showError() {
+
+        pinError.classList.add("show");
+
+        loginCard.classList.remove("shake");
+
+        void loginCard.offsetWidth;
+
+        loginCard.classList.add("shake");
+
+        if (navigator.vibrate) {
+          navigator.vibrate([40, 30, 40]);
+        }
+
+        setTimeout(() => {
+
+          enteredCode = "";
+
+          updateDots();
+
+        }, 500);
+
+      }
+
+
+      function unlock() {
+
+        if (navigator.vibrate) {
+          navigator.vibrate(25);
+        }
+
+        unlockFlash.classList.add("active");
+
+        loginCard.classList.add("success");
+
+        setTimeout(() => {
+
+          lockScreen.classList.add("unlocked");
+
+        }, 350);
+
+
+        setTimeout(() => {
+
+          dashboard.classList.add("visible");
+
+        }, 600);
+
+      }
+
+
+      document
+        .querySelectorAll("[data-number]")
+        .forEach(button => {
+
+          button.addEventListener(
+            "click",
+            () => {
+
+              addNumber(
+                button.dataset.number
+              );
+
+            }
+          );
+
+        });
+
+
+      document
+        .getElementById("deletePin")
+        .addEventListener(
+          "click",
+          deleteNumber
+        );
+
+
+      document
+        .getElementById("clearPin")
+        .addEventListener(
+          "click",
+          clearNumber
+        );
+
+
+      /*
+       * Hidden keyboard support
+       * Type 8682 directly from keyboard.
+       */
+
+      document.addEventListener(
+        "keydown",
+        event => {
+
+          if (
+            event.key >= "0" &&
+            event.key <= "9"
+          ) {
+
+            addNumber(event.key);
+
+          }
+
+          if (event.key === "Backspace") {
+
+            deleteNumber();
+
+          }
+
+          if (event.key === "Escape") {
+
+            clearNumber();
+
+          }
+
+        }
+      );
+
+
+      /*
+       * Section interaction
+       */
+
+      const sectionMessage =
+        document.getElementById(
+          "sectionMessage"
+        );
+
+      const sectionTitle =
+        document.getElementById(
+          "sectionTitle"
+        );
+
+      const sectionText =
+        document.getElementById(
+          "sectionText"
+        );
+
+      const sectionIcon =
+        document.getElementById(
+          "sectionIcon"
+        );
+
+
+      const sectionIcons = {
+
+        users: "👥",
+
+        payments: "💳",
+
+        subscriptions: "⭐",
+
+        notifications: "🔔",
+
+        support: "💬",
+
+        referrals: "🎁",
+
+        movies: "🎬",
+
+        settings: "⚙️"
+
+      };
+
+
+      document
+        .querySelectorAll("[data-section]")
+        .forEach(button => {
+
+          button.addEventListener(
+            "click",
+            () => {
+
+              const section =
+                button.dataset.section;
+
+              if (
+                section === "dashboard"
+              ) {
+
+                return;
+
+              }
+
+              sectionIcon.textContent =
+                sectionIcons[section] || "✨";
+
+              sectionTitle.textContent =
+                section
+                  .charAt(0)
+                  .toUpperCase() +
+                section.slice(1);
+
+              sectionText.textContent =
+                "This MVBD control section is ready for Firebase integration.";
+
+              sectionMessage.style.display =
+                "flex";
+
+            }
+          );
+
+        });
+
+
+      document
+        .getElementById("closeSection")
+        .addEventListener(
+          "click",
+          () => {
+
+            sectionMessage.style.display =
+              "none";
+
+          }
+        );
+
+
+      /*
+       * Keep dashboard available to admin.js
+       */
+
+      window.MVBDAdmin = {
+
+        isUnlocked: () =>
+          dashboard.classList.contains(
+            "visible"
+          ),
+
+        openSection: section => {
+
+          const button =
+            document.querySelector(
+              `[data-section="${section}"]`
+            );
+
+          button?.click();
+
+        }
+
+      };
+
+
+    })();
+
+  </script>
+
+
+
+  <!-- ==================================================
+       FIREBASE / ADMIN SCRIPT
+  =================================================== -->
+
+  <script
+    type="module"
+    src="./admin.js"
+  ></script>
+
+
+</body>
+</html>
