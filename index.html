@@ -25,6 +25,8 @@
       --green-light: #9affc2;
       --red: #ff5969;
       --yellow: #ffd15c;
+      --blue: #63a4ff;
+      --purple: #b88cff;
     }
 
     body {
@@ -58,10 +60,6 @@
       display: none !important;
     }
 
-    /* =========================
-       GLASS
-    ========================= */
-
     .glass {
       background: var(--card);
       border: 1px solid var(--border);
@@ -71,10 +69,6 @@
         0 20px 70px rgba(0,0,0,.35),
         inset 0 1px rgba(255,255,255,.035);
     }
-
-    /* =========================
-       LOGIN
-    ========================= */
 
     #pinScreen {
       min-height: 100vh;
@@ -207,14 +201,22 @@
       border: 1px solid rgba(255,209,92,.25);
     }
 
+    .btn.info {
+      background: rgba(99,164,255,.10);
+      color: #9cc5ff;
+      border: 1px solid rgba(99,164,255,.25);
+    }
+
+    .btn.purple {
+      background: rgba(184,140,255,.10);
+      color: #cfb4ff;
+      border: 1px solid rgba(184,140,255,.25);
+    }
+
     .muted {
       color: var(--muted);
       font-size: 13px;
     }
-
-    /* =========================
-       APP
-    ========================= */
 
     #app {
       display: none;
@@ -281,10 +283,6 @@
       }
     }
 
-    /* =========================
-       DASHBOARD
-    ========================= */
-
     .stats {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -320,10 +318,6 @@
       margin-top: 14px;
     }
 
-    /* =========================
-       HEAD
-    ========================= */
-
     .section-head {
       display: flex;
       justify-content: space-between;
@@ -336,10 +330,6 @@
       max-width: 330px;
       margin-top: 0;
     }
-
-    /* =========================
-       TABLE
-    ========================= */
 
     .table-card {
       padding: 0;
@@ -403,6 +393,16 @@
       background: rgba(255,209,92,.10);
     }
 
+    .pill.blue {
+      color: #9cc5ff;
+      background: rgba(99,164,255,.10);
+    }
+
+    .pill.purple {
+      color: #cfb4ff;
+      background: rgba(184,140,255,.10);
+    }
+
     .actions {
       display: flex;
       flex-wrap: wrap;
@@ -419,10 +419,6 @@
       text-align: center;
       color: var(--muted);
     }
-
-    /* =========================
-       SETTINGS
-    ========================= */
 
     .settings-card {
       padding: 20px;
@@ -447,9 +443,60 @@
       resize: vertical;
     }
 
-    /* =========================
-       MODAL
-    ========================= */
+    .referral-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+
+    .referral-stat {
+      padding: 18px;
+      border-radius: 22px;
+    }
+
+    .referral-stat small {
+      color: var(--muted);
+    }
+
+    .referral-stat strong {
+      display: block;
+      font-size: 27px;
+      margin-top: 7px;
+    }
+
+    .ref-code {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 9px;
+      background: rgba(46,232,121,.09);
+      color: #7df4a9;
+      border: 1px solid rgba(46,232,121,.15);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .3px;
+    }
+
+    .countdown {
+      display: inline-block;
+      margin-top: 5px;
+      font-size: 11px;
+      color: #9affc2;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .countdown.expired {
+      color: #ff9ca5;
+    }
+
+    .user-status-box {
+      margin-top: 14px;
+      padding: 13px;
+      border-radius: 15px;
+      background: rgba(255,255,255,.035);
+      border: 1px solid rgba(255,255,255,.07);
+    }
 
     .modal {
       position: fixed;
@@ -495,10 +542,6 @@
       float: right;
     }
 
-    /* =========================
-       BOTTOM NAV
-    ========================= */
-
     .bottom-nav {
       position: fixed;
       z-index: 50;
@@ -543,10 +586,6 @@
       background: rgba(46,232,121,.10);
     }
 
-    /* =========================
-       TOAST
-    ========================= */
-
     #toast {
       position: fixed;
       z-index: 200;
@@ -584,12 +623,36 @@
       }
     }
 
+    .danger-box {
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(255,89,105,.07);
+      border: 1px solid rgba(255,89,105,.16);
+      color: #ffb0b8;
+      line-height: 1.6;
+      margin-top: 14px;
+    }
+
+    .warning-box {
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(255,209,92,.07);
+      border: 1px solid rgba(255,209,92,.16);
+      color: #ffe49a;
+      line-height: 1.6;
+      margin-top: 14px;
+    }
+
     @media(max-width: 800px) {
       .stats {
         grid-template-columns: 1fr 1fr;
       }
 
       .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .referral-summary {
         grid-template-columns: 1fr;
       }
     }
@@ -642,10 +705,6 @@
 
 <body>
 
-<!-- =====================================================
-     PIN SCREEN
-===================================================== -->
-
 <section id="pinScreen">
 
   <div class="pin-card glass">
@@ -686,10 +745,6 @@
 </section>
 
 
-<!-- =====================================================
-     ADMIN APP
-===================================================== -->
-
 <div id="app">
 
   <header class="topbar">
@@ -721,7 +776,7 @@
 
   <main>
 
-    <!-- ================= DASHBOARD ================= -->
+    <!-- DASHBOARD -->
 
     <section
       id="dashboard"
@@ -781,6 +836,13 @@
 
           <button
             class="btn secondary"
+            data-page="referrals"
+          >
+            Referral System
+          </button>
+
+          <button
+            class="btn secondary"
             data-page="notifications"
           >
             Send Notification
@@ -800,7 +862,7 @@
     </section>
 
 
-    <!-- ================= USERS ================= -->
+    <!-- USERS -->
 
     <section
       id="users"
@@ -811,6 +873,7 @@
 
         <div>
           <h2>Users</h2>
+
           <p class="muted">
             Firebase realtime user profiles
           </p>
@@ -832,14 +895,16 @@
           <table>
 
             <thead>
+
               <tr>
                 <th>User</th>
                 <th>MVBD ID</th>
                 <th>Status</th>
                 <th>Plan</th>
-                <th>Expiry</th>
+                <th>Valid Time</th>
                 <th>Action</th>
               </tr>
+
             </thead>
 
             <tbody id="usersTable"></tbody>
@@ -853,7 +918,7 @@
     </section>
 
 
-    <!-- ================= PAYMENTS ================= -->
+    <!-- PAYMENTS -->
 
     <section
       id="payments"
@@ -876,6 +941,7 @@
           <table>
 
             <thead>
+
               <tr>
                 <th>User</th>
                 <th>Plan</th>
@@ -884,6 +950,7 @@
                 <th>Status</th>
                 <th>Action</th>
               </tr>
+
             </thead>
 
             <tbody id="paymentsTable"></tbody>
@@ -897,7 +964,7 @@
     </section>
 
 
-    <!-- ================= SUBSCRIPTIONS ================= -->
+    <!-- SUBSCRIPTIONS -->
 
     <section
       id="subscriptions"
@@ -920,14 +987,17 @@
           <table>
 
             <thead>
+
               <tr>
                 <th>User</th>
                 <th>Plan</th>
                 <th>Status</th>
                 <th>Started</th>
                 <th>Expires</th>
+                <th>Valid Time</th>
                 <th>Action</th>
               </tr>
+
             </thead>
 
             <tbody id="subscriptionsTable"></tbody>
@@ -941,7 +1011,102 @@
     </section>
 
 
-    <!-- ================= NOTIFICATIONS ================= -->
+    <!-- REFERRALS -->
+
+    <section
+      id="referrals"
+      class="view"
+    >
+
+      <div class="section-head">
+
+        <div>
+
+          <h2>Referral System</h2>
+
+          <p class="muted">
+            Realtime referral and promo-code overview
+          </p>
+
+        </div>
+
+        <button
+          id="refreshReferrals"
+          class="btn secondary"
+        >
+          Refresh
+        </button>
+
+      </div>
+
+
+      <div class="referral-summary">
+
+        <div class="referral-stat glass">
+
+          <small>Total Referrers</small>
+
+          <strong id="referrerCount">
+            0
+          </strong>
+
+        </div>
+
+
+        <div class="referral-stat glass">
+
+          <small>Total Referred Users</small>
+
+          <strong id="referredUsersCount">
+            0
+          </strong>
+
+        </div>
+
+
+        <div class="referral-stat glass">
+
+          <small>Total Referral Relations</small>
+
+          <strong id="referralRelationsCount">
+            0
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <div class="table-card glass">
+
+        <div class="table-scroll">
+
+          <table>
+
+            <thead>
+
+              <tr>
+                <th>Referrer</th>
+                <th>MVBD ID</th>
+                <th>Promo / Referral Code</th>
+                <th>Total Referred</th>
+                <th>Referred Users</th>
+              </tr>
+
+            </thead>
+
+            <tbody id="referralsTable"></tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- NOTIFICATIONS -->
 
     <section
       id="notifications"
@@ -977,12 +1142,14 @@
           <table>
 
             <thead>
+
               <tr>
                 <th>UID</th>
                 <th>Title</th>
                 <th>Message</th>
                 <th>Created</th>
               </tr>
+
             </thead>
 
             <tbody id="notificationsTable"></tbody>
@@ -996,7 +1163,7 @@
     </section>
 
 
-    <!-- ================= SUPPORT ================= -->
+    <!-- SUPPORT -->
 
     <section
       id="support"
@@ -1020,6 +1187,7 @@
           <table>
 
             <thead>
+
               <tr>
                 <th>User</th>
                 <th>Sender</th>
@@ -1027,6 +1195,7 @@
                 <th>Time</th>
                 <th>Action</th>
               </tr>
+
             </thead>
 
             <tbody id="supportTable"></tbody>
@@ -1040,7 +1209,7 @@
     </section>
 
 
-    <!-- ================= SETTINGS ================= -->
+    <!-- SETTINGS -->
 
     <section
       id="settings"
@@ -1060,14 +1229,17 @@
 
           <label>
             Payment Number
+
             <input
               id="paymentNumber"
               class="field"
             >
           </label>
 
+
           <label>
             Currency
+
             <input
               id="currency"
               class="field"
@@ -1075,8 +1247,10 @@
             >
           </label>
 
+
           <label>
             1 Month Price
+
             <input
               id="monthlyPrice"
               class="field"
@@ -1085,8 +1259,10 @@
             >
           </label>
 
+
           <label>
             2 Month Price
+
             <input
               id="twoMonthPrice"
               class="field"
@@ -1095,8 +1271,10 @@
             >
           </label>
 
+
           <label>
             3 Month Price
+
             <input
               id="threeMonthPrice"
               class="field"
@@ -1105,8 +1283,10 @@
             >
           </label>
 
+
           <label>
             Trial Days
+
             <input
               id="trialDays"
               class="field"
@@ -1116,6 +1296,7 @@
           </label>
 
         </div>
+
 
         <button
           id="saveSettings"
@@ -1138,8 +1319,7 @@
         >
           This version uses the requested client-side PIN.
           The PIN only protects the HTML interface; it does
-          not itself create Firebase authorization. Proper
-          production authorization can be added later.
+          not itself create Firebase authorization.
         </p>
 
       </div>
@@ -1149,9 +1329,7 @@
   </main>
 
 
-  <!-- =====================================================
-       BOTTOM NAV
-  ===================================================== -->
+  <!-- BOTTOM NAV -->
 
   <nav class="bottom-nav glass">
 
@@ -1163,6 +1341,7 @@
       Home
     </button>
 
+
     <button
       class="nav-btn"
       data-page="users"
@@ -1170,6 +1349,7 @@
       <b>♙</b>
       Users
     </button>
+
 
     <button
       class="nav-btn"
@@ -1179,6 +1359,7 @@
       Payments
     </button>
 
+
     <button
       class="nav-btn"
       data-page="subscriptions"
@@ -1186,6 +1367,16 @@
       <b>◈</b>
       Subs
     </button>
+
+
+    <button
+      class="nav-btn"
+      data-page="referrals"
+    >
+      <b>↗</b>
+      Referrals
+    </button>
+
 
     <button
       class="nav-btn"
@@ -1195,6 +1386,7 @@
       Alerts
     </button>
 
+
     <button
       class="nav-btn"
       data-page="support"
@@ -1202,6 +1394,7 @@
       <b>☏</b>
       Support
     </button>
+
 
     <button
       class="nav-btn"
@@ -1216,9 +1409,7 @@
 </div>
 
 
-<!-- =====================================================
-     MODAL
-===================================================== -->
+<!-- MODAL -->
 
 <div
   id="modal"
@@ -1244,10 +1435,6 @@
 <div id="toast"></div>
 
 
-<!-- =====================================================
-     FIREBASE + ADMIN LOGIC
-===================================================== -->
-
 <script type="module">
 
   import {
@@ -1264,9 +1451,11 @@
     addDoc,
     setDoc,
     updateDoc,
+    deleteDoc,
     writeBatch,
     serverTimestamp,
-    Timestamp
+    Timestamp,
+    getDocs
   } from
   "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
@@ -1297,11 +1486,13 @@
 
     measurementId:
       "G-HQZ9SL4RX8"
+
   };
 
 
   const firebaseApp =
     initializeApp(firebaseConfig);
+
 
   const db =
     getFirestore(firebaseApp);
@@ -1315,7 +1506,7 @@
 
 
   /* =====================================================
-     LOCAL STATE
+     STATE
   ===================================================== */
 
   let users = [];
@@ -1325,6 +1516,8 @@
   let supportMessages = [];
 
   let unsubscribeFunctions = [];
+
+  let countdownTimer = null;
 
 
   /* =====================================================
@@ -1343,6 +1536,7 @@
       .replaceAll(">", "&gt;")
       .replaceAll('"', "&quot;")
       .replaceAll("'", "&#039;");
+
   }
 
 
@@ -1351,24 +1545,36 @@
     if (!value)
       return null;
 
+
     if (
       typeof value.toDate === "function"
     ) {
+
       return value.toDate();
+
     }
 
-    if (value.seconds) {
+
+    if (
+      value &&
+      typeof value.seconds === "number"
+    ) {
+
       return new Date(
         value.seconds * 1000
       );
+
     }
+
 
     const date =
       new Date(value);
 
-    return isNaN(date)
+
+    return isNaN(date.getTime())
       ? null
       : date;
+
   }
 
 
@@ -1377,8 +1583,10 @@
     const date =
       convertDate(value);
 
+
     if (!date)
       return "—";
+
 
     return date.toLocaleString(
       "en-GB",
@@ -1387,6 +1595,7 @@
         timeStyle: "short"
       }
     );
+
   }
 
 
@@ -1398,6 +1607,7 @@
       item?.userUid ||
       ""
     );
+
   }
 
 
@@ -1410,6 +1620,7 @@
       getUID(item) ||
       "Unknown"
     );
+
   }
 
 
@@ -1428,13 +1639,16 @@
 
       trial:
         "7 Day Trial"
+
     };
+
 
     return (
       plans[planId] ||
       planId ||
       "—"
     );
+
   }
 
 
@@ -1447,9 +1661,12 @@
       two_months: 60,
 
       three_months: 90
+
     };
 
+
     return days[planId] || 0;
+
   }
 
 
@@ -1460,6 +1677,7 @@
         user.id === uid ||
         user.uid === uid
     ) || {};
+
   }
 
 
@@ -1468,16 +1686,24 @@
     const element =
       $("toast");
 
+
     element.textContent =
       message;
 
-    element.classList.add("show");
+
+    element.classList.add(
+      "show"
+    );
+
 
     setTimeout(() => {
 
-      element.classList.remove("show");
+      element.classList.remove(
+        "show"
+      );
 
     }, 2600);
+
   }
 
 
@@ -1486,9 +1712,11 @@
     $("modalContent").innerHTML =
       html;
 
+
     $("modal").classList.add(
       "show"
     );
+
   }
 
 
@@ -1498,13 +1726,60 @@
       "show"
     );
 
+
     $("modalContent").innerHTML =
       "";
+
   }
 
 
   /* =====================================================
-     FIRESTORE REALTIME LISTENER
+     ACCOUNT STATUS
+  ===================================================== */
+
+  function getAccountStatus(user) {
+
+    return (
+      user?.accountStatus ||
+      user?.status ||
+      "active"
+    ).toLowerCase();
+
+  }
+
+
+  function accountStatusLabel(status) {
+
+    if (status === "banned")
+      return "Banned";
+
+
+    if (status === "suspended")
+      return "Suspended";
+
+
+    return "Active";
+
+  }
+
+
+  function accountStatusClass(status) {
+
+    if (status === "banned")
+      return "red";
+
+
+    if (status === "suspended")
+      return "yellow";
+
+
+    return "green";
+
+  }
+
+
+  /* =====================================================
+     REALTIME COLLECTION LISTENER
   ===================================================== */
 
   function listenCollection(
@@ -1529,12 +1804,15 @@
             })
           );
 
+
         callback(data);
+
 
         $("firebaseStatus").textContent =
           "● Firebase realtime connected";
 
       },
+
 
       error => {
 
@@ -1543,12 +1821,14 @@
           error
         );
 
+
         $("firebaseStatus").textContent =
           "Firebase Rules / connection error";
 
       }
 
     );
+
   }
 
 
@@ -1563,40 +1843,59 @@
       listenCollection(
         "users",
         data => {
+
           users = data;
+
           renderAll();
+
         }
       ),
+
 
       listenCollection(
         "paymentRequests",
         data => {
+
           payments = data;
+
           renderAll();
+
         }
       ),
+
 
       listenCollection(
         "subscriptions",
         data => {
+
           subscriptions = data;
+
           renderAll();
+
         }
       ),
+
 
       listenCollection(
         "notifications",
         data => {
+
           notifications = data;
+
           renderAll();
+
         }
       ),
+
 
       listenCollection(
         "supportMessages",
         data => {
+
           supportMessages = data;
+
           renderAll();
+
         }
       )
 
@@ -1618,25 +1917,31 @@
             ? snapshot.data()
             : {};
 
+
         $("paymentNumber").value =
           settings.paymentNumber ||
           "01865522275";
+
 
         $("currency").value =
           settings.currency ||
           "৳";
 
+
         $("monthlyPrice").value =
           settings.monthlyPrice ??
           20;
+
 
         $("twoMonthPrice").value =
           settings.twoMonthPrice ??
           35;
 
+
         $("threeMonthPrice").value =
           settings.threeMonthPrice ??
           50;
+
 
         $("trialDays").value =
           settings.trialDays ??
@@ -1645,6 +1950,24 @@
       }
 
     );
+
+
+    if (
+      countdownTimer !== null
+    ) {
+
+      clearInterval(
+        countdownTimer
+      );
+
+    }
+
+
+    countdownTimer =
+      setInterval(
+        updateAllCountdowns,
+        1000
+      );
 
   }
 
@@ -1665,7 +1988,11 @@
 
     renderSupport();
 
+    renderReferrals();
+
     updateStats();
+
+    updateAllCountdowns();
 
   }
 
@@ -1683,8 +2010,10 @@
     $("pendingCount").textContent =
       payments.filter(
         payment =>
-          (payment.status || "pending")
-          === "pending"
+          (
+            payment.status ||
+            "pending"
+          ) === "pending"
       ).length;
 
 
@@ -1698,6 +2027,181 @@
 
     $("notificationsCount").textContent =
       notifications.length;
+
+  }
+
+
+  /* =====================================================
+     COUNTDOWN
+  ===================================================== */
+
+  function getExpiryForUser(user) {
+
+    return (
+      user.subscriptionExpiresAt ||
+      user.trialExpiresAt ||
+      null
+    );
+
+  }
+
+
+  function formatRemainingTime(
+    expiry
+  ) {
+
+    const date =
+      convertDate(expiry);
+
+
+    if (!date) {
+
+      return {
+        text: "No active expiry",
+        expired: true
+      };
+
+    }
+
+
+    const difference =
+      date.getTime() -
+      Date.now();
+
+
+    if (difference <= 0) {
+
+      return {
+        text: "Expired",
+        expired: true
+      };
+
+    }
+
+
+    let seconds =
+      Math.floor(
+        difference / 1000
+      );
+
+
+    const days =
+      Math.floor(
+        seconds / 86400
+      );
+
+
+    seconds %= 86400;
+
+
+    const hours =
+      Math.floor(
+        seconds / 3600
+      );
+
+
+    seconds %= 3600;
+
+
+    const minutes =
+      Math.floor(
+        seconds / 60
+      );
+
+
+    seconds %= 60;
+
+
+    return {
+
+      text:
+        `${days}d ${String(hours).padStart(2,"0")}h ` +
+        `${String(minutes).padStart(2,"0")}m ` +
+        `${String(seconds).padStart(2,"0")}s`,
+
+      expired: false
+
+    };
+
+  }
+
+
+  function updateAllCountdowns() {
+
+    document
+      .querySelectorAll(
+        "[data-countdown-uid]"
+      )
+      .forEach(element => {
+
+        const uid =
+          element.dataset.countdownUid;
+
+
+        const user =
+          findUser(uid);
+
+
+        if (!user)
+          return;
+
+
+        const result =
+          formatRemainingTime(
+            getExpiryForUser(user)
+          );
+
+
+        element.textContent =
+          result.text;
+
+
+        element.classList.toggle(
+          "expired",
+          result.expired
+        );
+
+      });
+
+
+    document
+      .querySelectorAll(
+        "[data-sub-countdown-id]"
+      )
+      .forEach(element => {
+
+        const id =
+          element.dataset.subCountdownId;
+
+
+        const subscription =
+          subscriptions.find(
+            item =>
+              item.id === id
+          );
+
+
+        if (!subscription)
+          return;
+
+
+        const result =
+          formatRemainingTime(
+            subscription.expiresAt ||
+            subscription.subscriptionExpiresAt
+          );
+
+
+        element.textContent =
+          result.text;
+
+
+        element.classList.toggle(
+          "expired",
+          result.expired
+        );
+
+      });
 
   }
 
@@ -1722,7 +2226,10 @@
           ${user.name || ""}
           ${user.email || ""}
           ${user.mvbdId || ""}
+          ${user.uid || ""}
+          ${user.id || ""}
         `.toLowerCase();
+
 
         return text.includes(query);
 
@@ -1732,16 +2239,24 @@
     if (!filtered.length) {
 
       $("usersTable").innerHTML = `
+
         <tr>
+
           <td colspan="6">
+
             <div class="empty">
               No users found
             </div>
+
           </td>
+
         </tr>
+
       `;
 
+
       return;
+
     }
 
 
@@ -1758,11 +2273,42 @@
         let status =
           "Normal";
 
+
         let statusClass =
           "";
 
 
+        const accountStatus =
+          getAccountStatus(user);
+
+
         if (
+          accountStatus ===
+          "banned"
+        ) {
+
+          status =
+            "Banned";
+
+          statusClass =
+            "red";
+
+        }
+
+        else if (
+          accountStatus ===
+          "suspended"
+        ) {
+
+          status =
+            "Suspended";
+
+          statusClass =
+            "yellow";
+
+        }
+
+        else if (
           user.subscriptionStatus ===
           "active"
         ) {
@@ -1774,6 +2320,7 @@
             "green";
 
         }
+
         else if (
           expiry &&
           expiry > new Date()
@@ -1789,9 +2336,11 @@
 
 
         return `
+
           <tr>
 
             <td>
+
               <b>
                 ${escapeHTML(
                   user.name ||
@@ -1807,6 +2356,7 @@
                   ""
                 )}
               </span>
+
             </td>
 
 
@@ -1819,11 +2369,29 @@
 
 
             <td>
+
               <span
                 class="pill ${statusClass}"
               >
                 ${status}
               </span>
+
+              <br>
+
+              <span
+                class="pill ${
+                  accountStatusClass(
+                    accountStatus
+                  )
+                }"
+                style="margin-top:5px"
+              >
+                Account:
+                ${accountStatusLabel(
+                  accountStatus
+                )}
+              </span>
+
             </td>
 
 
@@ -1837,10 +2405,23 @@
 
 
             <td>
-              ${formatDate(
-                user.subscriptionExpiresAt ||
-                user.trialExpiresAt
-              )}
+
+              <div>
+                ${formatDate(
+                  user.subscriptionExpiresAt ||
+                  user.trialExpiresAt
+                )}
+              </div>
+
+              <span
+                class="countdown"
+                data-countdown-uid="${escapeHTML(
+                  user.id
+                )}"
+              >
+                Calculating...
+              </span>
+
             </td>
 
 
@@ -1852,12 +2433,13 @@
                   user.id
                 )}"
               >
-                Edit
+                Manage
               </button>
 
             </td>
 
           </tr>
+
         `;
 
       }).join("");
@@ -1866,7 +2448,7 @@
 
 
   /* =====================================================
-     PAYMENTS
+     PAYMENT
   ===================================================== */
 
   function renderPayments() {
@@ -1890,16 +2472,24 @@
     if (!sorted.length) {
 
       $("paymentsTable").innerHTML = `
+
         <tr>
+
           <td colspan="6">
+
             <div class="empty">
               No payment requests
             </div>
+
           </td>
+
         </tr>
+
       `;
 
+
       return;
+
     }
 
 
@@ -1926,6 +2516,7 @@
 
 
         return `
+
           <tr>
 
             <td>
@@ -1980,6 +2571,7 @@
 
 
             <td>
+
               <span
                 class="pill ${statusClass}"
               >
@@ -1987,6 +2579,7 @@
                   status
                 )}
               </span>
+
             </td>
 
 
@@ -2029,6 +2622,7 @@
             </td>
 
           </tr>
+
         `;
 
       }).join("");
@@ -2076,6 +2670,7 @@
       );
 
       return;
+
     }
 
 
@@ -2104,18 +2699,13 @@
       new Date(
         base.getTime() +
         planDays *
-        24 *
-        60 *
-        60 *
-        1000
+        86400000
       );
 
 
     const batch =
       writeBatch(db);
 
-
-    /* Payment */
 
     batch.update(
 
@@ -2126,6 +2716,7 @@
       ),
 
       {
+
         status:
           "approved",
 
@@ -2134,12 +2725,11 @@
 
         reviewedAt:
           serverTimestamp()
+
       }
 
     );
 
-
-    /* User */
 
     batch.set(
 
@@ -2168,6 +2758,9 @@
             expiry
           ),
 
+        accountStatus:
+          "active",
+
         updatedAt:
           serverTimestamp()
 
@@ -2180,8 +2773,6 @@
 
     );
 
-
-    /* Subscription */
 
     batch.set(
 
@@ -2195,62 +2786,50 @@
       {
 
         uid:
-
           uid,
 
         name:
-
           payment.name ||
           user.name ||
           "",
 
         email:
-
           payment.email ||
           user.email ||
           "",
 
         planId:
-
           planId,
 
         planName:
-
           payment.planName ||
           getPlanName(
             planId
           ),
 
         amount:
-
           payment.amount ??
           0,
 
         status:
-
           "active",
 
         startedAt:
-
           serverTimestamp(),
 
         expiresAt:
-
           Timestamp.fromDate(
             expiry
           ),
 
         paymentRequestId:
-
           paymentId,
 
         transactionId:
-
           payment.transactionId ||
           "",
 
         updatedAt:
-
           serverTimestamp()
 
       },
@@ -2262,8 +2841,6 @@
 
     );
 
-
-    /* Notification */
 
     batch.set(
 
@@ -2278,15 +2855,12 @@
       {
 
         uid:
-
           uid,
 
         title:
-
           "Subscription Approved",
 
         message:
-
           `Your ${
             payment.planName ||
             getPlanName(
@@ -2295,15 +2869,12 @@
           } subscription has been approved.`,
 
         type:
-
           "subscription",
 
         read:
-
           false,
 
         createdAt:
-
           serverTimestamp()
 
       },
@@ -2402,28 +2973,22 @@
         {
 
           uid:
-
             uid,
 
           title:
-
             "Payment Request Rejected",
 
           message:
-
             reason ||
             "Your payment request was rejected. Please contact support.",
 
           type:
-
             "payment",
 
           read:
-
             false,
 
           createdAt:
-
             serverTimestamp()
 
         },
@@ -2449,7 +3014,7 @@
 
 
   /* =====================================================
-     EDIT USER
+     USER MANAGEMENT
   ===================================================== */
 
   function editUser(
@@ -2467,16 +3032,45 @@
       return;
 
 
+    const accountStatus =
+      getAccountStatus(user);
+
+
     showModal(`
 
-      <h2>Edit User</h2>
+      <h2>Manage User</h2>
 
       <p
         class="muted"
         style="margin-top:7px"
       >
-        Update Firebase user profile
+        ${escapeHTML(
+          user.name ||
+          user.email ||
+          userId
+        )}
       </p>
+
+
+      <div class="user-status-box">
+
+        <b>Current Account Status</b>
+
+        <div style="margin-top:8px">
+
+          <span
+            class="pill ${accountStatusClass(
+              accountStatus
+            )}"
+          >
+            ${accountStatusLabel(
+              accountStatus
+            )}
+          </span>
+
+        </div>
+
+      </div>
 
 
       <div
@@ -2485,7 +3079,9 @@
       >
 
         <label>
+
           Name
+
           <input
             id="editName"
             class="field"
@@ -2493,11 +3089,14 @@
               user.name || ""
             )}"
           >
+
         </label>
 
 
         <label>
+
           Email
+
           <input
             id="editEmail"
             class="field"
@@ -2505,11 +3104,14 @@
               user.email || ""
             )}"
           >
+
         </label>
 
 
         <label>
+
           MVBD ID
+
           <input
             id="editMvbd"
             class="field"
@@ -2517,10 +3119,12 @@
               user.mvbdId || ""
             )}"
           >
+
         </label>
 
 
         <label>
+
           Subscription Status
 
           <select
@@ -2546,6 +3150,7 @@
 
 
         <label>
+
           Subscription Plan
 
           <select
@@ -2575,6 +3180,7 @@
 
 
         <label>
+
           Subscription Expiry
 
           <input
@@ -2595,6 +3201,62 @@
       >
         Save User
       </button>
+
+
+      <div
+        style="
+          display:grid;
+          grid-template-columns:
+            repeat(2,minmax(0,1fr));
+          gap:8px;
+          margin-top:15px;
+        "
+      >
+
+        <button
+          id="banUser"
+          class="btn danger"
+        >
+          🚫 Ban Account
+        </button>
+
+
+        <button
+          id="suspendUser"
+          class="btn warning"
+        >
+          ⏸ Suspend
+        </button>
+
+
+        <button
+          id="activateUser"
+          class="btn"
+        >
+          ✓ Activate
+        </button>
+
+
+        <button
+          id="removeUser"
+          class="btn danger"
+        >
+          🗑 Remove Account
+        </button>
+
+      </div>
+
+
+      <div class="danger-box">
+
+        Ban / Suspend করলে user document-এর
+        <b>accountStatus</b> realtime পরিবর্তন হবে।
+
+        User panel যদি এই field listen করে,
+        তাহলে user account-এর access/status
+        realtime পরিবর্তন করা যাবে।
+
+      </div>
 
     `);
 
@@ -2620,9 +3282,10 @@
       const local =
         new Date(
           expiry.getTime() -
-          expiry.getTimezoneOffset()
-          * 60000
+          expiry.getTimezoneOffset() *
+          60000
         );
+
 
       $("editExpiry").value =
         local
@@ -2638,94 +3301,543 @@
     $("saveUser").onclick =
       async () => {
 
-        const status =
-          $("editStatus").value;
+        try {
+
+          const status =
+            $("editStatus").value;
 
 
-        const plan =
-          $("editPlan").value;
+          const plan =
+            $("editPlan").value;
 
 
-        const data = {
+          const data = {
 
-          name:
-            $("editName")
-            .value
-            .trim(),
+            name:
+              $("editName")
+                .value
+                .trim(),
 
-          email:
-            $("editEmail")
-            .value
-            .trim(),
+            email:
+              $("editEmail")
+                .value
+                .trim(),
 
-          mvbdId:
-            $("editMvbd")
-            .value
-            .trim(),
+            mvbdId:
+              $("editMvbd")
+                .value
+                .trim(),
 
-          subscriptionStatus:
+            subscriptionStatus:
+              status,
+
+            subscriptionPlan:
+              plan || null,
+
+            accessType:
+              status === "active"
+                ? "subscription"
+                : null,
+
+            updatedAt:
+              serverTimestamp()
+
+          };
+
+
+          const expiryValue =
+            $("editExpiry").value;
+
+
+          if (expiryValue) {
+
+            data.subscriptionExpiresAt =
+              Timestamp.fromDate(
+                new Date(
+                  expiryValue
+                )
+              );
+
+          }
+
+          else if (
+            status !== "active"
+          ) {
+
+            data.subscriptionExpiresAt =
+              null;
+
+          }
+
+
+          await updateDoc(
+
+            doc(
+              db,
+              "users",
+              userId
+            ),
+
+            data
+
+          );
+
+
+          closeModal();
+
+
+          toast(
+            "User updated"
+          );
+
+        }
+
+        catch(error) {
+
+          console.error(error);
+
+          toast(
+            "User update failed"
+          );
+
+        }
+
+      };
+
+
+    $("banUser").onclick =
+      () =>
+        changeAccountStatus(
+          userId,
+          "banned"
+        );
+
+
+    $("suspendUser").onclick =
+      () =>
+        changeAccountStatus(
+          userId,
+          "suspended"
+        );
+
+
+    $("activateUser").onclick =
+      () =>
+        changeAccountStatus(
+          userId,
+          "active"
+        );
+
+
+    $("removeUser").onclick =
+      () =>
+        removeUserAccount(
+          userId
+        );
+
+  }
+
+
+  /* =====================================================
+     CHANGE ACCOUNT STATUS
+  ===================================================== */
+
+  async function changeAccountStatus(
+    userId,
+    status
+  ) {
+
+    const user =
+      findUser(userId);
+
+
+    if (!user)
+      return;
+
+
+    let message =
+      "";
+
+
+    if (status === "banned") {
+
+      message =
+        "Are you sure you want to BAN this account?";
+
+    }
+
+    else if (
+      status === "suspended"
+    ) {
+
+      message =
+        "Are you sure you want to SUSPEND this account?";
+
+    }
+
+    else {
+
+      message =
+        "Activate this account again?";
+
+    }
+
+
+    if (
+      !confirm(message)
+    ) {
+
+      return;
+
+    }
+
+
+    try {
+
+      await setDoc(
+
+        doc(
+          db,
+          "users",
+          userId
+        ),
+
+        {
+
+          accountStatus:
             status,
 
-          subscriptionPlan:
-            plan || null,
+          accountStatusUpdatedAt:
+            serverTimestamp(),
 
-          accessType:
-            status === "active"
-              ? "subscription"
-              : null,
+          accountStatusUpdatedBy:
+            "admin",
 
           updatedAt:
             serverTimestamp()
 
-        };
+        },
+
+        {
+          merge:
+            true
+        }
+
+      );
 
 
-        const expiryValue =
-          $("editExpiry")
-          .value;
+      const notificationTitle =
+        status === "banned"
+          ? "Account Banned"
+          : status === "suspended"
+            ? "Account Suspended"
+            : "Account Activated";
 
 
-        if (expiryValue) {
+      const notificationMessage =
+        status === "banned"
+          ? "Your MVBD account has been banned."
+          : status === "suspended"
+            ? "Your MVBD account has been temporarily suspended."
+            : "Your MVBD account has been activated again.";
 
-          data.subscriptionExpiresAt =
-            Timestamp.fromDate(
-              new Date(
-                expiryValue
-              )
-            );
+
+      await addDoc(
+
+        collection(
+          db,
+          "notifications"
+        ),
+
+        {
+
+          uid:
+            userId,
+
+          title:
+            notificationTitle,
+
+          message:
+            notificationMessage,
+
+          type:
+            "account",
+
+          read:
+            false,
+
+          createdAt:
+            serverTimestamp()
 
         }
-        else if (
-          status !== "active"
+
+      );
+
+
+      closeModal();
+
+
+      toast(
+        status === "banned"
+          ? "Account banned"
+          : status === "suspended"
+            ? "Account suspended"
+            : "Account activated"
+      );
+
+    }
+
+    catch(error) {
+
+      console.error(error);
+
+      toast(
+        "Account status update failed"
+      );
+
+    }
+
+  }
+
+
+  /* =====================================================
+     REMOVE USER ACCOUNT
+  ===================================================== */
+
+  async function removeUserAccount(
+    userId
+  ) {
+
+    const user =
+      findUser(userId);
+
+
+    if (!user)
+      return;
+
+
+    const name =
+      user.name ||
+      user.email ||
+      userId;
+
+
+    const firstConfirm =
+      confirm(
+        `Remove account "${name}"?\n\n` +
+        `This will permanently remove the user's ` +
+        `Firestore profile and related MVBD data.`
+      );
+
+
+    if (!firstConfirm)
+      return;
+
+
+    const secondConfirm =
+      prompt(
+        'Type REMOVE to confirm account removal:'
+      );
+
+
+    if (
+      secondConfirm !==
+      "REMOVE"
+    ) {
+
+      toast(
+        "Account removal cancelled"
+      );
+
+      return;
+
+    }
+
+
+    try {
+
+      /*
+        Remove main user profile.
+      */
+
+      await deleteDoc(
+
+        doc(
+          db,
+          "users",
+          userId
+        )
+
+      );
+
+
+      /*
+        Remove user's subscriptions.
+      */
+
+      const subscriptionSnapshot =
+        await getDocs(
+          collection(
+            db,
+            "subscriptions"
+          )
+        );
+
+
+      for (
+        const item of
+        subscriptionSnapshot.docs
+      ) {
+
+        const data =
+          item.data();
+
+
+        if (
+          getUID(data) ===
+          userId
         ) {
 
-          data.subscriptionExpiresAt =
-            null;
+          await deleteDoc(
+            item.ref
+          );
 
         }
 
+      }
 
-        await updateDoc(
 
-          doc(
+      /*
+        Remove user's payment requests.
+      */
+
+      const paymentSnapshot =
+        await getDocs(
+          collection(
             db,
-            "users",
-            userId
-          ),
-
-          data
-
+            "paymentRequests"
+          )
         );
 
 
-        closeModal();
+      for (
+        const item of
+        paymentSnapshot.docs
+      ) {
+
+        const data =
+          item.data();
 
 
-        toast(
-          "User updated"
+        if (
+          getUID(data) ===
+          userId
+        ) {
+
+          await deleteDoc(
+            item.ref
+          );
+
+        }
+
+      }
+
+
+      /*
+        Remove user's notifications.
+      */
+
+      const notificationSnapshot =
+        await getDocs(
+          collection(
+            db,
+            "notifications"
+          )
         );
 
-      };
+
+      for (
+        const item of
+        notificationSnapshot.docs
+      ) {
+
+        const data =
+          item.data();
+
+
+        if (
+          getUID(data) ===
+          userId
+        ) {
+
+          await deleteDoc(
+            item.ref
+          );
+
+        }
+
+      }
+
+
+      /*
+        Remove user's support messages.
+      */
+
+      const supportSnapshot =
+        await getDocs(
+          collection(
+            db,
+            "supportMessages"
+          )
+        );
+
+
+      for (
+        const item of
+        supportSnapshot.docs
+      ) {
+
+        const data =
+          item.data();
+
+
+        if (
+          getUID(data) ===
+          userId
+        ) {
+
+          await deleteDoc(
+            item.ref
+          );
+
+        }
+
+      }
+
+
+      closeModal();
+
+
+      toast(
+        "Account removed from Firestore"
+      );
+
+
+      console.warn(
+        "Firebase Auth account is not deleted by this client-side HTML panel. A Firebase Admin SDK / Cloud Function is required for Auth deletion."
+      );
+
+    }
+
+    catch(error) {
+
+      console.error(error);
+
+      toast(
+        "Account removal failed"
+      );
+
+    }
 
   }
 
@@ -2743,7 +3855,7 @@
 
           <tr>
 
-            <td colspan="6">
+            <td colspan="7">
 
               <div class="empty">
                 No subscriptions
@@ -2755,7 +3867,9 @@
 
         `;
 
+
       return;
+
     }
 
 
@@ -2811,10 +3925,12 @@
                         : ""
                   }"
                 >
+
                   ${escapeHTML(
                     subscription.status ||
                     "—"
                   )}
+
                 </span>
 
               </td>
@@ -2832,6 +3948,20 @@
                   subscription.expiresAt ||
                   subscription.subscriptionExpiresAt
                 )}
+              </td>
+
+
+              <td>
+
+                <span
+                  class="countdown"
+                  data-sub-countdown-id="${escapeHTML(
+                    subscription.id
+                  )}"
+                >
+                  Calculating...
+                </span>
+
               </td>
 
 
@@ -2883,6 +4013,7 @@
       <h2>Extend Subscription</h2>
 
       <p class="muted">
+
         ${
           escapeHTML(
             subscription.name ||
@@ -2891,12 +4022,17 @@
             )
           )
         }
+
       </p>
 
 
       <label
-        style="display:block;margin-top:15px"
+        style="
+          display:block;
+          margin-top:15px
+        "
       >
+
         Extra Days
 
         <input
@@ -2909,6 +4045,7 @@
               subscription.planId
             ) || 30
           }"
+
         >
 
       </label>
@@ -3031,6 +4168,9 @@
                   newExpiry
                 ),
 
+              accountStatus:
+                "active",
+
               updatedAt:
                 serverTimestamp()
 
@@ -3057,6 +4197,548 @@
         );
 
       };
+
+  }
+
+
+  /* =====================================================
+     REFERRAL SYSTEM
+  ===================================================== */
+
+  function getReferralCode(user) {
+
+    return (
+      user.referralCode ||
+      user.promoCode ||
+      user.referral ||
+      user.refCode ||
+      "—"
+    );
+
+  }
+
+
+  function getReferrerUID(user) {
+
+    return (
+      user.referredBy ||
+      user.referrerUid ||
+      user.referrerUID ||
+      user.referrerId ||
+      user.referredByUid ||
+      user.referredByUID ||
+      user.referredById ||
+      ""
+    );
+
+  }
+
+
+  function getReferrerCodeUsed(user) {
+
+    return (
+      user.usedReferralCode ||
+      user.usedPromoCode ||
+      user.promoCodeUsed ||
+      user.referralCodeUsed ||
+      ""
+    );
+
+  }
+
+
+  function buildReferralData() {
+
+    const map =
+      new Map();
+
+
+    users.forEach(user => {
+
+      const code =
+        getReferralCode(user);
+
+
+      const hasCode =
+        code &&
+        code !== "—";
+
+
+      if (
+        hasCode &&
+        !map.has(code)
+      ) {
+
+        map.set(
+          code,
+          {
+            owner:
+              user,
+
+            referred:
+              []
+          }
+        );
+
+      }
+
+    });
+
+
+    /*
+      First try explicit referrer UID fields.
+    */
+
+    users.forEach(user => {
+
+      const referrerUID =
+        getReferrerUID(user);
+
+
+      if (!referrerUID)
+        return;
+
+
+      const owner =
+        users.find(
+          candidate =>
+            candidate.id ===
+              referrerUID ||
+            candidate.uid ===
+              referrerUID
+        );
+
+
+      if (!owner)
+        return;
+
+
+      const ownerCode =
+        getReferralCode(owner);
+
+
+      if (
+        !map.has(ownerCode)
+      ) {
+
+        map.set(
+          ownerCode,
+          {
+            owner:
+              owner,
+
+            referred:
+              []
+          }
+        );
+
+      }
+
+
+      const record =
+        map.get(ownerCode);
+
+
+      if (
+        !record.referred.some(
+          item =>
+            item.id ===
+            user.id
+        )
+      ) {
+
+        record.referred.push(
+          user
+        );
+
+      }
+
+    });
+
+
+    /*
+      Then support referral/promo code usage.
+    */
+
+    users.forEach(user => {
+
+      const usedCode =
+        getReferrerCodeUsed(user);
+
+
+      if (!usedCode)
+        return;
+
+
+      const record =
+        map.get(
+          usedCode
+        );
+
+
+      if (!record)
+        return;
+
+
+      if (
+        record.owner.id ===
+        user.id
+      ) {
+
+        return;
+
+      }
+
+
+      if (
+        !record.referred.some(
+          item =>
+            item.id ===
+            user.id
+        )
+      ) {
+
+        record.referred.push(
+          user
+        );
+
+      }
+
+    });
+
+
+    /*
+      Also support an array stored directly
+      on the referrer profile.
+    */
+
+    users.forEach(user => {
+
+      const directList =
+        Array.isArray(
+          user.referredUsers
+        )
+          ? user.referredUsers
+          : Array.isArray(
+              user.referrals
+            )
+            ? user.referrals
+            : [];
+
+
+      if (
+        !directList.length
+      ) {
+
+        return;
+
+      }
+
+
+      const code =
+        getReferralCode(user);
+
+
+      if (
+        !map.has(code)
+      ) {
+
+        map.set(
+          code,
+          {
+            owner:
+              user,
+
+            referred:
+              []
+          }
+        );
+
+      }
+
+
+      const record =
+        map.get(code);
+
+
+      directList.forEach(
+        item => {
+
+          const referredUID =
+            typeof item ===
+            "string"
+              ? item
+              : (
+                  item?.uid ||
+                  item?.userId ||
+                  item?.id ||
+                  ""
+                );
+
+
+          const referredUser =
+            users.find(
+              candidate =>
+                candidate.id ===
+                  referredUID ||
+                candidate.uid ===
+                  referredUID
+            );
+
+
+          if (
+            referredUser &&
+            !record.referred.some(
+              candidate =>
+                candidate.id ===
+                referredUser.id
+            )
+          ) {
+
+            record.referred.push(
+              referredUser
+            );
+
+          }
+
+        }
+      );
+
+    });
+
+
+    return [
+      ...map.values()
+    ]
+      .filter(
+        record =>
+          record.referred.length >
+          0
+      )
+      .sort(
+        (a,b) =>
+          b.referred.length -
+          a.referred.length
+      );
+
+  }
+
+
+  function renderReferrals() {
+
+    const data =
+      buildReferralData();
+
+
+    const totalReferrers =
+      data.length;
+
+
+    const totalReferred =
+      data.reduce(
+        (
+          total,
+          record
+        ) =>
+          total +
+          record.referred.length,
+        0
+      );
+
+
+    $("referrerCount")
+      .textContent =
+      totalReferrers;
+
+
+    $("referredUsersCount")
+      .textContent =
+      totalReferred;
+
+
+    $("referralRelationsCount")
+      .textContent =
+      totalReferred;
+
+
+    if (!data.length) {
+
+      $("referralsTable")
+        .innerHTML = `
+
+          <tr>
+
+            <td colspan="5">
+
+              <div class="empty">
+
+                No referral relationships found.
+
+                <br><br>
+
+                <span class="muted">
+
+                  Referral data should contain fields
+                  such as referredBy / referrerUid
+                  or usedReferralCode / usedPromoCode.
+
+                </span>
+
+              </div>
+
+            </td>
+
+          </tr>
+
+        `;
+
+
+      return;
+
+    }
+
+
+    $("referralsTable")
+      .innerHTML =
+
+      data
+        .map(record => {
+
+          const owner =
+            record.owner;
+
+
+          const names =
+            record.referred
+              .map(
+                referredUser => `
+
+                  <div
+                    style="
+                      margin-bottom:6px;
+                      padding:7px 9px;
+                      border-radius:10px;
+                      background:
+                        rgba(255,255,255,.035);
+                    "
+                  >
+
+                    <b>
+                      ${escapeHTML(
+                        referredUser.name ||
+                        referredUser.email ||
+                        "Unknown"
+                      )}
+                    </b>
+
+                    <br>
+
+                    <span class="muted">
+
+                      ${escapeHTML(
+                        referredUser.mvbdId ||
+                        referredUser.email ||
+                        referredUser.id
+                      )}
+
+                    </span>
+
+                  </div>
+
+                `
+              )
+              .join("");
+
+
+          return `
+
+            <tr>
+
+              <td>
+
+                <b>
+                  ${escapeHTML(
+                    owner.name ||
+                    owner.email ||
+                    owner.id
+                  )}
+                </b>
+
+                <br>
+
+                <span class="muted">
+
+                  ${escapeHTML(
+                    owner.email ||
+                    ""
+                  )}
+
+                </span>
+
+              </td>
+
+
+              <td>
+
+                ${escapeHTML(
+                  owner.mvbdId ||
+                  "—"
+                )}
+
+              </td>
+
+
+              <td>
+
+                <span class="ref-code">
+
+                  ${escapeHTML(
+                    getReferralCode(
+                      owner
+                    )
+                  )}
+
+                </span>
+
+              </td>
+
+
+              <td>
+
+                <span class="pill green">
+
+                  ${
+                    record.referred.length
+                  }
+                  Users
+
+                </span>
+
+              </td>
+
+
+              <td>
+
+                <div
+                  style="
+                    min-width:220px;
+                    max-height:190px;
+                    overflow:auto;
+                  "
+                >
+
+                  ${names}
+
+                </div>
+
+              </td>
+
+            </tr>
+
+          `;
+
+        })
+        .join("");
 
   }
 
@@ -3102,7 +4784,9 @@
 
         `;
 
+
       return;
+
     }
 
 
@@ -3123,6 +4807,7 @@
                 )}
               </td>
 
+
               <td>
                 ${escapeHTML(
                   notification.title ||
@@ -3130,12 +4815,14 @@
                 )}
               </td>
 
+
               <td>
                 ${escapeHTML(
                   notification.message ||
                   ""
                 )}
               </td>
+
 
               <td>
                 ${formatDate(
@@ -3166,8 +4853,10 @@
         class="muted"
         style="margin-top:7px"
       >
+
         Use a Firebase UID or type
         ALL for all current users.
+
       </p>
 
 
@@ -3234,7 +4923,9 @@
             "Please fill all fields"
           );
 
+
           return;
+
         }
 
 
@@ -3242,11 +4933,6 @@
           uid.toUpperCase() ===
           "ALL"
         ) {
-
-          /*
-            Firestore batches have a
-            write limit. Use chunks.
-          */
 
           for (
             let i = 0;
@@ -3309,6 +4995,7 @@
           }
 
         }
+
         else {
 
           await addDoc(
@@ -3398,7 +5085,9 @@
 
         `;
 
+
       return;
+
     }
 
 
@@ -3425,11 +5114,13 @@
           <tr>
 
             <td>
+
               ${escapeHTML(
                 user.name ||
                 message.senderName ||
                 uid
               )}
+
             </td>
 
 
@@ -3442,26 +5133,32 @@
                     : ""
                 }"
               >
+
                 ${escapeHTML(
                   role
                 )}
+
               </span>
 
             </td>
 
 
             <td>
+
               ${escapeHTML(
                 message.message ||
                 ""
               )}
+
             </td>
 
 
             <td>
+
               ${formatDate(
                 message.createdAt
               )}
+
             </td>
 
 
@@ -3553,7 +5250,9 @@
             "Write a message first"
           );
 
+
           return;
+
         }
 
 
@@ -3567,27 +5266,21 @@
           {
 
             uid:
-
               uid,
 
             senderUid:
-
               "admin",
 
             senderName:
-
               "MVBD Admin",
 
             senderRole:
-
               "admin",
 
             message:
-
               message,
 
             createdAt:
-
               serverTimestamp()
 
           }
@@ -3614,66 +5307,80 @@
   $("saveSettings").onclick =
     async () => {
 
-      await setDoc(
+      try {
 
-        doc(
-          db,
-          "settings",
-          "mvbd"
-        ),
+        await setDoc(
 
-        {
+          doc(
+            db,
+            "settings",
+            "mvbd"
+          ),
 
-          paymentNumber:
-            $("paymentNumber")
-              .value
-              .trim(),
+          {
 
-          currency:
-            $("currency")
-              .value
-              .trim(),
-
-          monthlyPrice:
-            Number(
-              $("monthlyPrice")
+            paymentNumber:
+              $("paymentNumber")
                 .value
-            ) || 20,
+                .trim(),
 
-          twoMonthPrice:
-            Number(
-              $("twoMonthPrice")
+            currency:
+              $("currency")
                 .value
-            ) || 35,
+                .trim(),
 
-          threeMonthPrice:
-            Number(
-              $("threeMonthPrice")
-                .value
-            ) || 50,
+            monthlyPrice:
+              Number(
+                $("monthlyPrice")
+                  .value
+              ) || 20,
 
-          trialDays:
-            Number(
-              $("trialDays")
-                .value
-            ) || 7,
+            twoMonthPrice:
+              Number(
+                $("twoMonthPrice")
+                  .value
+              ) || 35,
 
-          updatedAt:
-            serverTimestamp()
+            threeMonthPrice:
+              Number(
+                $("threeMonthPrice")
+                  .value
+              ) || 50,
 
-        },
+            trialDays:
+              Number(
+                $("trialDays")
+                  .value
+              ) || 7,
 
-        {
-          merge:
-            true
-        }
+            updatedAt:
+              serverTimestamp()
 
-      );
+          },
+
+          {
+            merge:
+              true
+          }
+
+        );
 
 
-      toast(
-        "Settings saved"
-      );
+        toast(
+          "Settings saved"
+        );
+
+      }
+
+      catch(error) {
+
+        console.error(error);
+
+        toast(
+          "Settings save failed"
+        );
+
+      }
 
     };
 
@@ -3718,6 +5425,10 @@
 
   }
 
+
+  /* =====================================================
+     CLICK EVENTS
+  ===================================================== */
 
   document.addEventListener(
     "click",
@@ -3848,6 +5559,21 @@
     );
 
 
+  $("refreshReferrals")
+    .addEventListener(
+      "click",
+      () => {
+
+        renderReferrals();
+
+        toast(
+          "Referral data refreshed"
+        );
+
+      }
+    );
+
+
   $("modalClose")
     .addEventListener(
       "click",
@@ -3895,6 +5621,7 @@
         "Incorrect admin PIN.";
 
       return;
+
     }
 
 
@@ -3963,8 +5690,11 @@
             unsubscribe => {
 
               try {
+
                 unsubscribe();
+
               }
+
               catch {}
 
             }
@@ -3973,6 +5703,20 @@
 
         unsubscribeFunctions =
           [];
+
+
+        if (
+          countdownTimer !== null
+        ) {
+
+          clearInterval(
+            countdownTimer
+          );
+
+          countdownTimer =
+            null;
+
+        }
 
 
         location.reload();
