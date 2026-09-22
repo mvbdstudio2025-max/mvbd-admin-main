@@ -1943,19 +1943,20 @@
       }
 
       const postData = {
-        authorId: "admin",
-        authorName: "MeBook Official",
-        authorAvatar: "https://i.postimg.cc/g0pGNkxc/file-000000000bf482118c249820a099f2d4.png",
-        verified: true,
-        isOfficial: true,
-        caption: [caption, text].filter(Boolean).join("\n\n") || text,
-        movie: movie || "MeBook Official",
-        image: imageUrl,
-        likes: [],
-        comments: [],
-        shares: 0,
-        createdAt: serverTimestamp()
-      };
+  authorId: "admin",
+  authorName: "MeBook Official",
+  authorAvatar: "https://i.postimg.cc/g0pGNkxc/file-000000000bf482118c249820a099f2d4.png",
+  verified: true,
+  isOfficial: true,
+  caption: [caption, text].filter(Boolean).join("\n\n") || text,
+  movie: movie || "MeBook Official",
+  image: imageUrl,
+  likes: [],
+  reactions: {},       // 👈 শুধু এই line টা নতুন যোগ করবেন
+  comments: [],
+  shares: 0,
+  createdAt: serverTimestamp()
+};
 
       const ref = await addDoc(collection(db, "posts"), postData);
       await setDoc(doc(db, "adminPosts", ref.id), {
