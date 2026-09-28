@@ -408,7 +408,6 @@
 
     .modal-close { float: right; }
 
-    /* Bottom nav — now 5 items */
     .bottom-nav {
       position: fixed;
       z-index: 50;
@@ -513,7 +512,6 @@
       border: 1px solid rgba(34,197,94,.3);
     }
 
-    /* Online dot indicator */
     .online-dot {
       display: inline-block;
       width: 8px; height: 8px;
@@ -532,7 +530,59 @@
       50% { opacity: .45; }
     }
 
-    /* Analytics bar chart */
+    /* 🆕 NEW USER ROW */
+    .new-user-row {
+      background: linear-gradient(90deg, rgba(46,232,121,.08), transparent);
+      animation: newRowPulse 2s ease-in-out;
+    }
+    @keyframes newRowPulse {
+      0% { background: rgba(46,232,121,.22); }
+      100% { background: linear-gradient(90deg, rgba(46,232,121,.08), transparent); }
+    }
+
+    .badge-new {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(46,232,121,.20);
+      color: #9affc2;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .5px;
+      border: 1px solid rgba(46,232,121,.4);
+      margin-left: 6px;
+      animation: newBadgePulse 1.2s infinite;
+    }
+    @keyframes newBadgePulse {
+      0%,100% { opacity: 1; }
+      50% { opacity: .6; }
+    }
+
+    .time-ago {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 8px;
+      background: rgba(99,164,255,.10);
+      color: #9cc5ff;
+      font-size: 11px;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    .time-ago.just-now {
+      background: rgba(46,232,121,.15);
+      color: #9affc2;
+      animation: newBadgePulse 1.4s infinite;
+    }
+    .time-ago.recent {
+      background: rgba(255,209,92,.12);
+      color: #ffe08b;
+    }
+    .time-ago.old {
+      background: rgba(255,255,255,.06);
+      color: var(--muted);
+    }
+
     .analytics-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -590,14 +640,6 @@
       font-weight: 700;
     }
 
-    .device-card {
-      padding: 16px;
-      border-radius: 18px;
-      background: rgba(255,255,255,.03);
-      border: 1px solid rgba(255,255,255,.07);
-      margin-bottom: 10px;
-    }
-
     @media(max-width: 800px) {
       .stats, .analytics-grid { grid-template-columns: 1fr 1fr; }
       .form-grid { grid-template-columns: 1fr; }
@@ -644,7 +686,6 @@
     </div>
   </header>
 
-  <!-- Topbar 3-dots menu (Devices & Analytics moved OUT → bottom nav) -->
   <div id="topbarMenu" class="topbar-menu">
     <button class="topbar-menu-item" data-page="subscriptions">
       <span class="topbar-menu-ico">◈</span>
@@ -778,7 +819,7 @@
       <div class="section-head">
         <div>
           <h2>Users</h2>
-          <p class="muted">Firebase realtime user profiles · 🟢 = online (last 2 min)</p>
+          <p class="muted">🆕 Latest signup সবার উপরে · 🟢 = online (last 2 min)</p>
         </div>
         <input id="userSearch" class="field search" placeholder="Search name, email or MVBD ID">
       </div>
@@ -790,6 +831,7 @@
               <tr>
                 <th>User</th>
                 <th>MVBD ID</th>
+                <th>Signup Time</th>
                 <th>Status</th>
                 <th>Verified</th>
                 <th>Plan</th>
@@ -803,7 +845,7 @@
       </div>
     </section>
 
-    <!-- DEVICES (NEW) -->
+    <!-- DEVICES -->
     <section id="devices" class="view">
       <div class="section-head">
         <div>
@@ -841,7 +883,7 @@
       </div>
     </section>
 
-    <!-- ANALYTICS (NEW) -->
+    <!-- ANALYTICS -->
     <section id="analytics" class="view">
       <div class="section-head">
         <div>
@@ -1003,7 +1045,6 @@
     </section>
   </main>
 
-  <!-- ============ BOTTOM NAV — NOW 5 ITEMS ============ -->
   <nav class="bottom-nav glass">
     <button class="nav-btn active" data-page="dashboard"><b>⌂</b>Dash</button>
     <button class="nav-btn" data-page="mebook"><b>📖</b>MeBook</button>
@@ -1043,7 +1084,6 @@
     where
   } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
-  /* ================= FIREBASE CONFIG ================= */
   const firebaseConfig = {
     apiKey: "AIzaSyBtBaUSIlXwJDWytaiOfal3ha7OmZEwuYM",
     authDomain: "mvbdminiapp.firebaseapp.com",
@@ -1057,7 +1097,6 @@
   const firebaseApp = initializeApp(firebaseConfig);
   const db = getFirestore(firebaseApp);
 
-  /* ================= CLOUDINARY ================= */
   const CLOUD_NAME = "xtbkyhrl";
   const UPLOAD_PRESET = "MeBook";
 
@@ -1086,28 +1125,24 @@
     });
   }
 
-  /* ================= ADMIN PIN ================= */
   const ADMIN_PIN = "8682";
+  const ONLINE_MS = 2 * 60 * 1000;
 
-  /* ================= ONLINE THRESHOLD ================= */
-  const ONLINE_MS = 2 * 60 * 1000; // 2 minutes
-
-  /* ================= STATE ================= */
   let users = [];
   let payments = [];
   let subscriptions = [];
   let notifications = [];
   let supportMessages = [];
   let mebookPosts = [];
-  let sessions = [];      // 🆕 devices
-  let views = [];         // 🆕 analytics
+  let sessions = [];
+  let views = [];
   let currentFile = null;
 
   let unsubscribeFunctions = [];
   let countdownTimer = null;
   let onlineRefreshTimer = null;
+  let timeAgoTimer = null;   // 🆕 for updating "X seconds ago" text
 
-  /* ================= HELPERS ================= */
   const $ = (id) => document.getElementById(id);
 
   function escapeHTML(value) {
@@ -1134,14 +1169,38 @@
     return date.toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
   }
 
-  function formatTimeShort(value) {
+  /* 🆕 TIME AGO — "just now", "5s ago", "2m ago", "3h ago" */
+  function formatTimeAgo(value) {
     const date = convertDate(value);
-    if (!date) return "—";
-    const diff = Date.now() - date.getTime();
-    if (diff < 60_000) return "just now";
-    if (diff < 3_600_000) return Math.floor(diff/60_000) + "m ago";
-    if (diff < 86_400_000) return Math.floor(diff/3_600_000) + "h ago";
-    return date.toLocaleDateString("en-GB", { dateStyle: "short" });
+    if (!date) return "unknown";
+    const diffMs = Date.now() - date.getTime();
+    if (diffMs < 0) return "just now";
+
+    const s = Math.floor(diffMs / 1000);
+    if (s < 5) return "just now";
+    if (s < 60) return `${s}s ago`;
+    const m = Math.floor(s / 60);
+    if (m < 60) return `${m}m ago`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `${h}h ago`;
+    const d = Math.floor(h / 24);
+    if (d < 7) return `${d}d ago`;
+    const w = Math.floor(d / 7);
+    if (w < 4) return `${w}w ago`;
+    const mo = Math.floor(d / 30);
+    if (mo < 12) return `${mo}mo ago`;
+    const y = Math.floor(d / 365);
+    return `${y}y ago`;
+  }
+
+  function timeAgoClass(value) {
+    const date = convertDate(value);
+    if (!date) return "old";
+    const diffSec = (Date.now() - date.getTime()) / 1000;
+    if (diffSec < 30) return "just-now";
+    if (diffSec < 3600) return "recent";
+    if (diffSec < 86400) return "recent";
+    return "old";
   }
 
   function getUID(item) {
@@ -1190,7 +1249,6 @@
     $("modalContent").innerHTML = "";
   }
 
-  /* ================= ACCOUNT STATUS ================= */
   function getAccountStatus(user) {
     return (user?.accountStatus || user?.status || "active").toLowerCase();
   }
@@ -1207,7 +1265,6 @@
     return "green";
   }
 
-  /* ================= REALTIME LISTENER ================= */
   function listenCollection(collectionName, callback) {
     return onSnapshot(
       collection(db, collectionName),
@@ -1223,7 +1280,6 @@
     );
   }
 
-  /* ================= START REALTIME ================= */
   function startRealtime() {
     unsubscribeFunctions.push(
       listenCollection("users", data => { users = data; renderAll(); }),
@@ -1232,7 +1288,6 @@
       listenCollection("notifications", data => { notifications = data; renderAll(); }),
       listenCollection("supportMessages", data => { supportMessages = data; renderAll(); }),
       listenCollection("posts", data => { mebookPosts = data; renderAll(); }),
-      // 🆕 NEW
       listenCollection("sessions", data => { sessions = data; renderAll(); }),
       listenCollection("views", data => { views = data; renderAnalytics(); })
     );
@@ -1250,15 +1305,25 @@
     if (countdownTimer !== null) clearInterval(countdownTimer);
     countdownTimer = setInterval(updateAllCountdowns, 1000);
 
-    // Refresh online status every 30s
     if (onlineRefreshTimer !== null) clearInterval(onlineRefreshTimer);
     onlineRefreshTimer = setInterval(() => {
       updateStats();
       renderDevices();
     }, 30000);
+
+    /* 🆕 Update "X ago" text every 5 seconds so it counts up live */
+    if (timeAgoTimer !== null) clearInterval(timeAgoTimer);
+    timeAgoTimer = setInterval(updateTimeAgoElements, 5000);
   }
 
-  /* ================= RENDER ALL ================= */
+  function updateTimeAgoElements() {
+    document.querySelectorAll("[data-timeago]").forEach(el => {
+      const ts = el.dataset.timeago;
+      el.textContent = formatTimeAgo(ts);
+      el.className = "time-ago " + timeAgoClass(ts);
+    });
+  }
+
   function renderAll() {
     renderUsers();
     renderPayments();
@@ -1271,7 +1336,6 @@
     updateAllCountdowns();
   }
 
-  /* ================= STATS ================= */
   function updateStats() {
     $("usersCount").textContent = users.length;
     $("pendingCount").textContent = payments.filter(
@@ -1285,7 +1349,6 @@
     if ($("onlineDevicesCount")) $("onlineDevicesCount").textContent = onlineNow;
   }
 
-  /* ================= COUNTDOWN ================= */
   function getExpiryForUser(user) {
     return user.subscriptionExpiresAt || user.trialExpiresAt || null;
   }
@@ -1333,11 +1396,31 @@
     });
   }
 
-  /* ================= USERS ================= */
+  /* ============================================
+     🆕 USERS — LATEST SIGNUP সবার উপরে
+     ============================================ */
   function renderUsers() {
     const q = ($("userSearch").value || "").toLowerCase();
 
-    const filtered = users.filter(user => {
+    // Signup time helper — multiple field names handle করে
+    const getSignupTime = (user) =>
+      user.createdAt ||
+      user.signupAt ||
+      user.joinedAt ||
+      user.registeredAt ||
+      user.metadata?.creationTime ||
+      user.trialStartedAt ||
+      user.updatedAt ||
+      null;
+
+    // 🔽 LATEST SIGNUP আগে দেখানোর জন্য sort
+    const sorted = [...users].sort((a, b) => {
+      const aTime = convertDate(getSignupTime(a))?.getTime() || 0;
+      const bTime = convertDate(getSignupTime(b))?.getTime() || 0;
+      return bTime - aTime; // descending — newest first
+    });
+
+    const filtered = sorted.filter(user => {
       const text = `
         ${user.name || ""}
         ${user.email || ""}
@@ -1350,10 +1433,12 @@
 
     if (!filtered.length) {
       $("usersTable").innerHTML = `
-        <tr><td colspan="7"><div class="empty">No users found</div></td></tr>
+        <tr><td colspan="8"><div class="empty">No users found</div></td></tr>
       `;
       return;
     }
+
+    const FIVE_MIN_MS = 5 * 60 * 1000;
 
     $("usersTable").innerHTML = filtered.map(user => {
       const expiry = convertDate(
@@ -1377,15 +1462,33 @@
       const isVerified = user.verified === true || user.isOfficial === true;
       const online = isUserOnline(user);
 
+      const signupRaw = getSignupTime(user);
+      const signupTs = convertDate(signupRaw);
+      const isNewUser = signupTs
+        ? (Date.now() - signupTs.getTime()) < FIVE_MIN_MS
+        : false;
+
+      const signupAgo = signupTs ? formatTimeAgo(signupTs) : "—";
+      const signupAgoCls = timeAgoClass(signupTs);
+
       return `
-        <tr>
+        <tr class="${isNewUser ? "new-user-row" : ""}">
           <td>
             <span class="online-dot ${online ? "on" : ""}"></span>
             <b>${escapeHTML(user.name || "Unnamed")}</b>
+            ${isNewUser ? `<span class="badge-new">NEW</span>` : ""}
             <br>
             <span class="muted">${escapeHTML(user.email || "")}</span>
           </td>
           <td>${escapeHTML(user.mvbdId || "—")}</td>
+          <td>
+            ${
+              signupTs
+                ? `<span class="time-ago ${signupAgoCls}" data-timeago="${signupTs.toISOString()}">${signupAgo}</span>
+                   <br><span class="muted" style="font-size:11px">${formatDate(signupTs)}</span>`
+                : `<span class="muted">—</span>`
+            }
+          </td>
           <td>
             <span class="pill ${statusClass}">${status}</span>
             <br>
@@ -1425,7 +1528,6 @@
     }).join("");
   }
 
-  /* ================= DEVICES (NEW) ================= */
   function renderDevices() {
     if (!$("devicesTable")) return;
 
@@ -1446,7 +1548,6 @@
       return text.includes(q);
     });
 
-    // Sort: active first, then by lastSeen desc
     filtered.sort((a, b) => {
       const aRev = a.revoked === true ? 1 : 0;
       const bRev = b.revoked === true ? 1 : 0;
@@ -1456,7 +1557,6 @@
       return bT - aT;
     });
 
-    // Update stats
     const totalDevices = sessions.length;
     const activeSessions = sessions.filter(s => s.revoked !== true).length;
     const revokedSessions = sessions.filter(s => s.revoked === true).length;
@@ -1487,6 +1587,8 @@
       if (revoked) statusPill = `<span class="pill red">Revoked</span>`;
       else if (online) statusPill = `<span class="pill green">● Online</span>`;
 
+      const loginAgo = session.loginAt || session.createdAt;
+
       return `
         <tr>
           <td>
@@ -1507,8 +1609,14 @@
             <br>
             <span class="muted" style="font-size:11px">${escapeHTML(session.location || "")}</span>
           </td>
-          <td>${formatDate(session.loginAt || session.createdAt)}</td>
-          <td>${formatTimeShort(session.lastSeen)}</td>
+          <td>${formatDate(loginAgo)}</td>
+          <td>
+            ${
+              lastSeenTs
+                ? `<span class="time-ago ${timeAgoClass(lastSeenTs)}" data-timeago="${lastSeenTs.toISOString()}">${formatTimeAgo(lastSeenTs)}</span>`
+                : "—"
+            }
+          </td>
           <td>${statusPill}</td>
           <td>
             <div class="actions">
@@ -1539,7 +1647,6 @@
         revokedBy: "admin"
       });
 
-      // Notify user
       const uid = getUID(session);
       if (uid) {
         await addDoc(collection(db, "notifications"), {
@@ -1574,7 +1681,6 @@
     }
   }
 
-  /* ================= ANALYTICS (NEW) ================= */
   function renderAnalytics() {
     if (!$("todayViews")) return;
 
@@ -1587,10 +1693,9 @@
     let totalViewsCount = views.length;
 
     const todayVisitors = new Set();
-    const pageStats = {};      // pageName → { views: n, visitors: Set }
-    const dailyStats = {};     // yyyy-mm-dd → count
+    const pageStats = {};
+    const dailyStats = {};
 
-    // Initialize last 7 days
     for (let i = 6; i >= 0; i--) {
       const d = new Date(todayStart - (i * 86400000));
       const key = d.toISOString().slice(0, 10);
@@ -1609,10 +1714,8 @@
       }
       if (t >= weekStart) weekViewsCount++;
 
-      // Daily chart
       if (dailyStats[dayKey] !== undefined) dailyStats[dayKey]++;
 
-      // Per-page
       const page = v.page || v.pageName || "unknown";
       if (!pageStats[page]) pageStats[page] = { views: 0, visitors: new Set() };
       pageStats[page].views++;
@@ -1624,7 +1727,6 @@
     $("weekViews").textContent = weekViewsCount;
     $("totalViews").textContent = totalViewsCount;
 
-    // Render bar chart
     const chartEl = $("viewsChart");
     const entries = Object.entries(dailyStats);
     const maxVal = Math.max(1, ...entries.map(([, v]) => v));
@@ -1644,7 +1746,6 @@
       }).join("");
     }
 
-    // Render pages table
     const pageEntries = Object.entries(pageStats)
       .map(([page, stat]) => ({ page, views: stat.views, visitors: stat.visitors.size }))
       .sort((a, b) => b.views - a.views)
@@ -1665,7 +1766,6 @@
     }
   }
 
-  /* ================= VERIFY / UNVERIFY ================= */
   async function verifyUser(userId, verified) {
     try {
       await setDoc(
@@ -1717,7 +1817,6 @@
     }
   }
 
-  /* ================= PAYMENTS ================= */
   function renderPayments() {
     const sorted = [...payments].sort(
       (a,b) => (convertDate(b.createdAt) || 0) - (convertDate(a.createdAt) || 0)
@@ -1877,7 +1976,6 @@
     toast("Payment rejected");
   }
 
-  /* ================= USER MANAGEMENT ================= */
   function editUser(userId) {
     const user = users.find(item => item.id === userId);
     if (!user) return;
@@ -2159,7 +2257,6 @@
     }
   }
 
-  /* ================= SUBSCRIPTIONS ================= */
   function renderSubscriptions() {
     if (!subscriptions.length) {
       $("subscriptionsTable").innerHTML = `
@@ -2253,7 +2350,6 @@
     };
   }
 
-  /* ================= MEBOOK POSTS MANAGEMENT ================= */
   function renderMeBookPosts() {
     const q = ($("postSearch")?.value || "").toLowerCase();
 
@@ -2361,7 +2457,6 @@
     }
   }
 
-  /* ================= CREATE OFFICIAL POST ================= */
   async function publishOfficialPost() {
     const movie = $("mbPostMovie").value.trim();
     const caption = $("mbPostCaption").value.trim();
@@ -2435,7 +2530,6 @@
     $("mbUploadProgress").style.display = "none";
   }
 
-  /* ================= NOTIFICATIONS ================= */
   function renderNotifications() {
     const sorted = [...notifications].sort(
       (a,b) => (convertDate(b.createdAt) || 0) - (convertDate(a.createdAt) || 0)
@@ -2514,7 +2608,6 @@
     };
   }
 
-  /* ================= SUPPORT ================= */
   function renderSupport() {
     const sorted = [...supportMessages].sort(
       (a,b) => (convertDate(b.createdAt) || 0) - (convertDate(a.createdAt) || 0)
@@ -2583,7 +2676,6 @@
     };
   }
 
-  /* ================= SETTINGS ================= */
   $("saveSettings").onclick = async () => {
     try {
       await setDoc(
@@ -2606,7 +2698,6 @@
     }
   };
 
-  /* ================= NAVIGATION ================= */
   function openPage(page) {
     document.querySelectorAll(".view").forEach(section => {
       section.classList.toggle("active", section.id === page);
@@ -2618,7 +2709,6 @@
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  /* ================= TOPBAR MENU ================= */
   $("menuBtn").onclick = (e) => {
     e.stopPropagation();
     $("topbarMenu").classList.toggle("open");
@@ -2646,10 +2736,13 @@
       clearInterval(onlineRefreshTimer);
       onlineRefreshTimer = null;
     }
+    if (timeAgoTimer !== null) {
+      clearInterval(timeAgoTimer);
+      timeAgoTimer = null;
+    }
     location.reload();
   };
 
-  /* ================= CLICK EVENTS ================= */
   document.addEventListener("click", event => {
     const pageButton = event.target.closest("[data-page]");
     if (pageButton) openPage(pageButton.dataset.page);
@@ -2686,7 +2779,6 @@
     const deletePostBtn = event.target.closest("[data-delete-post]");
     if (deletePostBtn) deleteMeBookPost(deletePostBtn.dataset.deletePost);
 
-    // 🆕 Session buttons
     const revokeBtn = event.target.closest("[data-revoke-session]");
     if (revokeBtn) revokeSession(revokeBtn.dataset.revokeSession);
 
@@ -2739,7 +2831,6 @@
     if (event.target.id === "modal") closeModal();
   });
 
-  /* ---- MeBook form ---- */
   $("mbUploadBtn").addEventListener("click", () => $("mbPostFile").click());
   $("mbPostFile").addEventListener("change", e => {
     const f = e.target.files?.[0];
@@ -2751,7 +2842,6 @@
   $("mbRemoveImage").addEventListener("click", removeImagePreview);
   $("mbPostSubmit").addEventListener("click", publishOfficialPost);
 
-  /* ================= PIN LOGIN ================= */
   function unlockAdmin() {
     const pin = $("pinInput").value.trim();
     if (pin !== ADMIN_PIN) {
@@ -2770,7 +2860,6 @@
     if (event.key === "Enter") unlockAdmin();
   });
 
-  /* ================= LOCK ================= */
   $("lockAdmin").addEventListener("click", () => {
     unsubscribeFunctions.forEach(unsubscribe => {
       try { unsubscribe(); } catch {}
@@ -2784,124 +2873,13 @@
       clearInterval(onlineRefreshTimer);
       onlineRefreshTimer = null;
     }
+    if (timeAgoTimer !== null) {
+      clearInterval(timeAgoTimer);
+      timeAgoTimer = null;
+    }
     location.reload();
   });
 </script>
-
-<!--
-============================================================
-⚠️ IMPORTANT — MOVIESVERSEBD MAIN APP-এ এই CODE বসান
-============================================================
-
-এই code আপনার main app (MoviesVerseBD) এর index.html এ
-paste করলে Devices + Analytics page গুলো real-time data
-দেখাবে। এই code ছাড়া admin panel ফাঁকা থাকবে।
-
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-  import {
-    getFirestore, doc, setDoc, addDoc, collection,
-    serverTimestamp, onSnapshot
-  } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyBtBaUSIlXwJDWytaiOfal3ha7OmZEwuYM",
-    authDomain: "mvbdminiapp.firebaseapp.com",
-    projectId: "mvbdminiapp",
-    storageBucket: "mvbdminiapp.firebasestorage.app",
-    messagingSenderId: "668051748254",
-    appId: "1:668051748254:web:d4804b68429d853a0c928f"
-  };
-  const app = initializeApp(firebaseConfig);
-  const db  = getFirestore(app);
-
-  // 👉 এই UID টা আপনার auth system থেকে নিন
-  // যদি Firebase Auth use না করেন, localStorage-এ নিজের uid রাখুন
-  const UID = localStorage.getItem("mvbd_uid") || "guest_" + Math.random().toString(36).slice(2, 10);
-
-  // -------- DEVICE ID (একবার generate হবে, save থাকবে) --------
-  let DEVICE_ID = localStorage.getItem("mvbd_device_id");
-  if (!DEVICE_ID) {
-    DEVICE_ID = "dev_" + Math.random().toString(36).slice(2, 12) + "_" + Date.now();
-    localStorage.setItem("mvbd_device_id", DEVICE_ID);
-  }
-
-  // -------- VISITOR ID (analytics এর জন্য) --------
-  let VISITOR_ID = localStorage.getItem("mvbd_visitor_id");
-  if (!VISITOR_ID) {
-    VISITOR_ID = "v_" + Math.random().toString(36).slice(2, 12);
-    localStorage.setItem("mvbd_visitor_id", VISITOR_ID);
-  }
-
-  // -------- DEVICE NAME detect --------
-  function getDeviceName() {
-    const ua = navigator.userAgent;
-    if (/Android/i.test(ua)) return "Android Device";
-    if (/iPhone/i.test(ua)) return "iPhone";
-    if (/iPad/i.test(ua)) return "iPad";
-    if (/Windows/i.test(ua)) return "Windows PC";
-    if (/Mac/i.test(ua)) return "Mac";
-    if (/Linux/i.test(ua)) return "Linux";
-    return "Unknown Device";
-  }
-  function getPlatform() {
-    const ua = navigator.userAgent;
-    if (/Android/i.test(ua)) return "Android";
-    if (/iPhone|iPad|iPod/i.test(ua)) return "iOS";
-    if (/Windows/i.test(ua)) return "Windows";
-    if (/Mac/i.test(ua)) return "macOS";
-    if (/Linux/i.test(ua)) return "Linux";
-    return "Web";
-  }
-
-  // -------- SESSION write (login) --------
-  const sessionId = UID + "_" + DEVICE_ID;
-  const sessionRef = doc(db, "sessions", sessionId);
-
-  await setDoc(sessionRef, {
-    uid: UID,
-    deviceId: DEVICE_ID,
-    deviceName: getDeviceName(),
-    platform: getPlatform(),
-    userAgent: navigator.userAgent,
-    loginAt: serverTimestamp(),
-    lastSeen: serverTimestamp(),
-    revoked: false
-  }, { merge: true });
-
-  // -------- HEARTBEAT (প্রতি ৬০ সেকেন্ডে lastSeen update) --------
-  setInterval(() => {
-    setDoc(sessionRef, { lastSeen: serverTimestamp() }, { merge: true }).catch(()=>{});
-    // user doc-এও lastSeen দিন (Users page-এ online দেখাতে)
-    setDoc(doc(db, "users", UID), {
-      lastSeen: serverTimestamp()
-    }, { merge: true }).catch(()=>{});
-  }, 60000);
-
-  // -------- REVOKE LISTENER (admin revoke করলে logout) --------
-  onSnapshot(sessionRef, (snap) => {
-    if (snap.exists() && snap.data().revoked === true) {
-      alert("এই device থেকে session revoke করা হয়েছে। আপনাকে logout করা হচ্ছে।");
-      localStorage.clear();
-      location.reload();
-    }
-  });
-
-  // -------- VIEW TRACKING (প্রতি page load-এ একবার) --------
-  const pageName = document.title || location.pathname || "home";
-  await addDoc(collection(db, "views"), {
-    uid: UID,
-    visitorId: VISITOR_ID,
-    page: pageName,
-    url: location.href,
-    deviceId: DEVICE_ID,
-    platform: getPlatform(),
-    createdAt: serverTimestamp()
-  }).catch(()=>{});
-
-</script>
-============================================================
--->
 
 </body>
 </html>
