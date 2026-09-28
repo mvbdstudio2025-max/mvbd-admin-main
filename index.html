@@ -154,7 +154,6 @@
       padding-bottom: 105px;
     }
 
-    /* ================= TOP BAR ================= */
     .topbar {
       position: sticky;
       top: 0;
@@ -174,7 +173,6 @@
 
     .connection { margin-top: 3px; color: var(--muted); font-size: 11px; }
 
-    /* ================= 3-DOTS MENU (Topbar) ================= */
     .menu-btn {
       width: 42px; height: 42px;
       border-radius: 50%;
@@ -295,6 +293,7 @@
       align-items: center;
       gap: 12px;
       margin-bottom: 15px;
+      flex-wrap: wrap;
     }
 
     .section-head .search { max-width: 330px; margin-top: 0; }
@@ -409,14 +408,14 @@
 
     .modal-close { float: right; }
 
-    /* ================= BOTTOM NAV (4 items only) ================= */
+    /* Bottom nav — now 5 items */
     .bottom-nav {
       position: fixed;
       z-index: 50;
       left: 50%;
       bottom: 10px;
       transform: translateX(-50%);
-      width: min(560px, calc(100% - 16px));
+      width: min(640px, calc(100% - 12px));
       display: flex;
       justify-content: space-around;
       padding: 8px;
@@ -427,18 +426,18 @@
       border: 0;
       background: transparent;
       color: #96a39d;
-      padding: 10px 16px;
+      padding: 9px 10px;
       border-radius: 16px;
-      font-size: 10.5px;
+      font-size: 10px;
       font-weight: 600;
-      min-width: 70px;
+      min-width: 58px;
       transition: .2s;
     }
 
     .nav-btn b {
       display: block;
       margin-bottom: 3px;
-      font-size: 19px;
+      font-size: 18px;
     }
 
     .nav-btn.active {
@@ -514,22 +513,107 @@
       border: 1px solid rgba(34,197,94,.3);
     }
 
+    /* Online dot indicator */
+    .online-dot {
+      display: inline-block;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #4b5563;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+    .online-dot.on {
+      background: #2ee879;
+      box-shadow: 0 0 8px rgba(46,232,121,.7);
+      animation: onlinePulse 1.6s infinite;
+    }
+    @keyframes onlinePulse {
+      0%,100% { opacity: 1; }
+      50% { opacity: .45; }
+    }
+
+    /* Analytics bar chart */
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 13px;
+      margin-top: 18px;
+    }
+    .analytics-card {
+      padding: 20px;
+      border-radius: 23px;
+    }
+    .analytics-card small { color: var(--muted); }
+    .analytics-card strong { display: block; margin-top: 8px; font-size: 26px; }
+
+    .chart-wrap {
+      margin-top: 16px;
+      padding: 20px;
+      border-radius: 24px;
+    }
+    .chart-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      height: 200px;
+      margin-top: 16px;
+      padding-bottom: 26px;
+      position: relative;
+      overflow-x: auto;
+    }
+    .chart-bar {
+      flex: 1 0 42px;
+      min-width: 42px;
+      background: linear-gradient(180deg, #2ee879, #1a8f4d);
+      border-radius: 8px 8px 0 0;
+      position: relative;
+      transition: .3s;
+      min-height: 4px;
+    }
+    .chart-bar:hover { filter: brightness(1.2); }
+    .chart-bar-label {
+      position: absolute;
+      bottom: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .chart-bar-value {
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      color: #9affc2;
+      font-weight: 700;
+    }
+
+    .device-card {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.07);
+      margin-bottom: 10px;
+    }
+
     @media(max-width: 800px) {
-      .stats { grid-template-columns: 1fr 1fr; }
+      .stats, .analytics-grid { grid-template-columns: 1fr 1fr; }
       .form-grid { grid-template-columns: 1fr; }
     }
 
     @media(max-width: 520px) {
       main { padding: 16px 12px; }
       .topbar { padding: 14px; }
-      .stats { gap: 8px; }
-      .stat { padding: 14px; }
-      .stat strong { font-size: 23px; }
+      .stats, .analytics-grid { gap: 8px; }
+      .stat, .analytics-card { padding: 14px; }
+      .stat strong, .analytics-card strong { font-size: 22px; }
       .section-head { align-items: flex-start; flex-direction: column; }
       .section-head .search { max-width: none; }
       .bottom-nav { bottom: 7px; }
-      .nav-btn { min-width: 60px; padding: 8px 6px; }
-      .nav-btn b { font-size: 17px; }
+      .nav-btn { min-width: 52px; padding: 7px 4px; font-size: 9px; }
+      .nav-btn b { font-size: 16px; }
       .topbar-menu { left: 10px; right: 10px; max-width: none; }
     }
   </style>
@@ -560,7 +644,7 @@
     </div>
   </header>
 
-  <!-- Topbar 3-dots menu -->
+  <!-- Topbar 3-dots menu (Devices & Analytics moved OUT → bottom nav) -->
   <div id="topbarMenu" class="topbar-menu">
     <button class="topbar-menu-item" data-page="subscriptions">
       <span class="topbar-menu-ico">◈</span>
@@ -595,7 +679,7 @@
         <div class="stat glass"><small>Users</small><strong id="usersCount">0</strong></div>
         <div class="stat glass"><small>Pending Payments</small><strong id="pendingCount">0</strong></div>
         <div class="stat glass"><small>Active Subscriptions</small><strong id="activeSubsCount">0</strong></div>
-        <div class="stat glass"><small>MeBook Posts</small><strong id="mebookPostsCount">0</strong></div>
+        <div class="stat glass"><small>Online Now</small><strong id="onlineCount">0</strong></div>
       </div>
 
       <div class="dashboard-card glass">
@@ -604,10 +688,9 @@
           <button class="btn" data-page="mebook">MeBook Center</button>
           <button class="btn secondary" data-page="payments">Review Payments</button>
           <button class="btn secondary" data-page="users">Manage Users</button>
-          <button class="btn secondary" data-page="subscriptions">Subscriptions</button>
+          <button class="btn secondary" data-page="devices">📱 Live Devices</button>
+          <button class="btn secondary" data-page="analytics">📊 Analytics</button>
           <button class="btn secondary" data-page="notifications">Send Notification</button>
-          <button class="btn secondary" data-page="support">Support Chat</button>
-          <button class="btn secondary" data-page="settings">Settings</button>
         </div>
       </div>
     </section>
@@ -695,7 +778,7 @@
       <div class="section-head">
         <div>
           <h2>Users</h2>
-          <p class="muted">Firebase realtime user profiles</p>
+          <p class="muted">Firebase realtime user profiles · 🟢 = online (last 2 min)</p>
         </div>
         <input id="userSearch" class="field search" placeholder="Search name, email or MVBD ID">
       </div>
@@ -715,6 +798,91 @@
               </tr>
             </thead>
             <tbody id="usersTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- DEVICES (NEW) -->
+    <section id="devices" class="view">
+      <div class="section-head">
+        <div>
+          <h2>📱 Live Devices & Sessions</h2>
+          <p class="muted">Real-time device tracking · প্রতিটা device revoke করা যাবে</p>
+        </div>
+        <input id="deviceSearch" class="field search" placeholder="Search by user, device, IP">
+      </div>
+
+      <div class="stats" style="margin-top:0">
+        <div class="stat glass"><small>Total Devices</small><strong id="totalDevicesCount">0</strong></div>
+        <div class="stat glass"><small>Active Sessions</small><strong id="activeSessionsCount">0</strong></div>
+        <div class="stat glass"><small>Revoked Sessions</small><strong id="revokedSessionsCount">0</strong></div>
+        <div class="stat glass"><small>Users Online</small><strong id="onlineDevicesCount">0</strong></div>
+      </div>
+
+      <div class="table-card glass" style="margin-top:16px">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Device</th>
+                <th>Platform</th>
+                <th>IP / Location</th>
+                <th>Login Time</th>
+                <th>Last Seen</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="devicesTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ANALYTICS (NEW) -->
+    <section id="analytics" class="view">
+      <div class="section-head">
+        <div>
+          <h2>📊 Analytics</h2>
+          <p class="muted">Real-time views, visitors and page stats</p>
+        </div>
+      </div>
+
+      <div class="analytics-grid">
+        <div class="analytics-card glass"><small>Today Views</small><strong id="todayViews">0</strong></div>
+        <div class="analytics-card glass"><small>Today Visitors</small><strong id="todayVisitors">0</strong></div>
+        <div class="analytics-card glass"><small>7-Day Views</small><strong id="weekViews">0</strong></div>
+        <div class="analytics-card glass"><small>Total Views</small><strong id="totalViews">0</strong></div>
+      </div>
+
+      <div class="chart-wrap glass">
+        <h3>Last 7 Days · Views</h3>
+        <p class="muted" style="margin-top:4px">প্রতিটা bar = এক দিনের views</p>
+        <div class="chart-bars" id="viewsChart">
+          <div class="empty" style="width:100%">No view data yet</div>
+        </div>
+      </div>
+
+      <div class="section-head" style="margin-top:22px">
+        <div>
+          <h2 style="font-size:20px">Top Pages</h2>
+          <p class="muted">কোন page কতবার দেখা হয়েছে</p>
+        </div>
+      </div>
+
+      <div class="table-card glass">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Page</th>
+                <th>Views</th>
+                <th>Unique Visitors</th>
+              </tr>
+            </thead>
+            <tbody id="pagesTable"></tbody>
           </table>
         </div>
       </div>
@@ -743,7 +911,7 @@
       </div>
     </section>
 
-    <!-- SUBSCRIPTIONS (moved to 3-dots) -->
+    <!-- SUBSCRIPTIONS -->
     <section id="subscriptions" class="view">
       <h2>Subscriptions</h2>
       <p class="muted">Active and historical subscriptions</p>
@@ -767,12 +935,12 @@
       </div>
     </section>
 
-    <!-- NOTIFICATIONS (moved to 3-dots) -->
+    <!-- NOTIFICATIONS -->
     <section id="notifications" class="view">
       <div class="section-head">
         <div>
           <h2>Notifications</h2>
-          <p class="muted">Send realtime notifications to users (appears in MeBook notification icon)</p>
+          <p class="muted">Send realtime notifications to users</p>
         </div>
         <button id="newNotification" class="btn">+ New Notification</button>
       </div>
@@ -794,7 +962,7 @@
       </div>
     </section>
 
-    <!-- SUPPORT (moved to 3-dots) -->
+    <!-- SUPPORT -->
     <section id="support" class="view">
       <h2>Support Chat</h2>
       <p class="muted">Realtime user support messages</p>
@@ -816,7 +984,7 @@
       </div>
     </section>
 
-    <!-- SETTINGS (moved to 3-dots) -->
+    <!-- SETTINGS -->
     <section id="settings" class="view">
       <h2>Settings</h2>
       <p class="muted">MVBD Firebase system settings</p>
@@ -835,12 +1003,13 @@
     </section>
   </main>
 
-  <!-- ============ BOTTOM NAV (4 items) ============ -->
+  <!-- ============ BOTTOM NAV — NOW 5 ITEMS ============ -->
   <nav class="bottom-nav glass">
-    <button class="nav-btn active" data-page="dashboard"><b>⌂</b>Dashboard</button>
+    <button class="nav-btn active" data-page="dashboard"><b>⌂</b>Dash</button>
     <button class="nav-btn" data-page="mebook"><b>📖</b>MeBook</button>
     <button class="nav-btn" data-page="users"><b>♙</b>Users</button>
-    <button class="nav-btn" data-page="payments"><b>৳</b>Payment</button>
+    <button class="nav-btn" data-page="devices"><b>📱</b>Devices</button>
+    <button class="nav-btn" data-page="analytics"><b>📊</b>Stats</button>
   </nav>
 </div>
 
@@ -870,7 +1039,8 @@
     Timestamp,
     getDocs,
     query,
-    orderBy
+    orderBy,
+    where
   } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
   /* ================= FIREBASE CONFIG ================= */
@@ -919,6 +1089,9 @@
   /* ================= ADMIN PIN ================= */
   const ADMIN_PIN = "8682";
 
+  /* ================= ONLINE THRESHOLD ================= */
+  const ONLINE_MS = 2 * 60 * 1000; // 2 minutes
+
   /* ================= STATE ================= */
   let users = [];
   let payments = [];
@@ -926,10 +1099,13 @@
   let notifications = [];
   let supportMessages = [];
   let mebookPosts = [];
+  let sessions = [];      // 🆕 devices
+  let views = [];         // 🆕 analytics
   let currentFile = null;
 
   let unsubscribeFunctions = [];
   let countdownTimer = null;
+  let onlineRefreshTimer = null;
 
   /* ================= HELPERS ================= */
   const $ = (id) => document.getElementById(id);
@@ -958,6 +1134,16 @@
     return date.toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
   }
 
+  function formatTimeShort(value) {
+    const date = convertDate(value);
+    if (!date) return "—";
+    const diff = Date.now() - date.getTime();
+    if (diff < 60_000) return "just now";
+    if (diff < 3_600_000) return Math.floor(diff/60_000) + "m ago";
+    if (diff < 86_400_000) return Math.floor(diff/3_600_000) + "h ago";
+    return date.toLocaleDateString("en-GB", { dateStyle: "short" });
+  }
+
   function getUID(item) {
     return item?.uid || item?.userId || item?.userUid || "";
   }
@@ -979,6 +1165,12 @@
 
   function findUser(uid) {
     return users.find(u => u.id === uid || u.uid === uid) || {};
+  }
+
+  function isUserOnline(user) {
+    const ts = convertDate(user?.lastSeen);
+    if (!ts) return false;
+    return (Date.now() - ts.getTime()) < ONLINE_MS;
   }
 
   function toast(message) {
@@ -1039,7 +1231,10 @@
       listenCollection("subscriptions", data => { subscriptions = data; renderAll(); }),
       listenCollection("notifications", data => { notifications = data; renderAll(); }),
       listenCollection("supportMessages", data => { supportMessages = data; renderAll(); }),
-      listenCollection("posts", data => { mebookPosts = data; renderAll(); })
+      listenCollection("posts", data => { mebookPosts = data; renderAll(); }),
+      // 🆕 NEW
+      listenCollection("sessions", data => { sessions = data; renderAll(); }),
+      listenCollection("views", data => { views = data; renderAnalytics(); })
     );
 
     onSnapshot(doc(db, "settings", "mvbd"), snapshot => {
@@ -1054,6 +1249,13 @@
 
     if (countdownTimer !== null) clearInterval(countdownTimer);
     countdownTimer = setInterval(updateAllCountdowns, 1000);
+
+    // Refresh online status every 30s
+    if (onlineRefreshTimer !== null) clearInterval(onlineRefreshTimer);
+    onlineRefreshTimer = setInterval(() => {
+      updateStats();
+      renderDevices();
+    }, 30000);
   }
 
   /* ================= RENDER ALL ================= */
@@ -1064,6 +1266,7 @@
     renderNotifications();
     renderSupport();
     renderMeBookPosts();
+    renderDevices();
     updateStats();
     updateAllCountdowns();
   }
@@ -1077,7 +1280,9 @@
     $("activeSubsCount").textContent = subscriptions.filter(
       s => s.status === "active"
     ).length;
-    $("mebookPostsCount").textContent = mebookPosts.length;
+    const onlineNow = users.filter(isUserOnline).length;
+    if ($("onlineCount")) $("onlineCount").textContent = onlineNow;
+    if ($("onlineDevicesCount")) $("onlineDevicesCount").textContent = onlineNow;
   }
 
   /* ================= COUNTDOWN ================= */
@@ -1170,10 +1375,12 @@
       }
 
       const isVerified = user.verified === true || user.isOfficial === true;
+      const online = isUserOnline(user);
 
       return `
         <tr>
           <td>
+            <span class="online-dot ${online ? "on" : ""}"></span>
             <b>${escapeHTML(user.name || "Unnamed")}</b>
             <br>
             <span class="muted">${escapeHTML(user.email || "")}</span>
@@ -1216,6 +1423,246 @@
         </tr>
       `;
     }).join("");
+  }
+
+  /* ================= DEVICES (NEW) ================= */
+  function renderDevices() {
+    if (!$("devicesTable")) return;
+
+    const q = ($("deviceSearch")?.value || "").toLowerCase();
+
+    const filtered = sessions.filter(s => {
+      const user = findUser(getUID(s));
+      const text = `
+        ${s.deviceName || ""}
+        ${s.deviceId || ""}
+        ${s.platform || ""}
+        ${s.ip || ""}
+        ${s.location || ""}
+        ${user.name || ""}
+        ${user.email || ""}
+        ${getUID(s)}
+      `.toLowerCase();
+      return text.includes(q);
+    });
+
+    // Sort: active first, then by lastSeen desc
+    filtered.sort((a, b) => {
+      const aRev = a.revoked === true ? 1 : 0;
+      const bRev = b.revoked === true ? 1 : 0;
+      if (aRev !== bRev) return aRev - bRev;
+      const aT = convertDate(a.lastSeen)?.getTime() || 0;
+      const bT = convertDate(b.lastSeen)?.getTime() || 0;
+      return bT - aT;
+    });
+
+    // Update stats
+    const totalDevices = sessions.length;
+    const activeSessions = sessions.filter(s => s.revoked !== true).length;
+    const revokedSessions = sessions.filter(s => s.revoked === true).length;
+
+    if ($("totalDevicesCount")) $("totalDevicesCount").textContent = totalDevices;
+    if ($("activeSessionsCount")) $("activeSessionsCount").textContent = activeSessions;
+    if ($("revokedSessionsCount")) $("revokedSessionsCount").textContent = revokedSessions;
+
+    if (!filtered.length) {
+      $("devicesTable").innerHTML = `
+        <tr><td colspan="8">
+          <div class="empty">
+            No devices tracked yet.<br><br>
+            <small>⚠️ Admin panel থেকে device track দেখতে হলে আপনার MoviesVerseBD main app-এ tracker code paste করতে হবে।</small>
+          </div>
+        </td></tr>
+      `;
+      return;
+    }
+
+    $("devicesTable").innerHTML = filtered.map(session => {
+      const user = findUser(getUID(session));
+      const revoked = session.revoked === true;
+      const lastSeenTs = convertDate(session.lastSeen);
+      const online = !revoked && lastSeenTs && (Date.now() - lastSeenTs.getTime()) < ONLINE_MS;
+
+      let statusPill = `<span class="pill yellow">Idle</span>`;
+      if (revoked) statusPill = `<span class="pill red">Revoked</span>`;
+      else if (online) statusPill = `<span class="pill green">● Online</span>`;
+
+      return `
+        <tr>
+          <td>
+            <b>${escapeHTML(user.name || user.email || getUID(session) || "Unknown")}</b>
+            <br>
+            <span class="muted" style="font-size:11px">${escapeHTML(getUID(session).slice(0, 16))}...</span>
+          </td>
+          <td>
+            <b>${escapeHTML(session.deviceName || "Unknown Device")}</b>
+            <br>
+            <span class="muted" style="font-size:11px">${escapeHTML(session.deviceId || "—")}</span>
+          </td>
+          <td>
+            <span class="pill blue">${escapeHTML(session.platform || "—")}</span>
+          </td>
+          <td>
+            ${escapeHTML(session.ip || "—")}
+            <br>
+            <span class="muted" style="font-size:11px">${escapeHTML(session.location || "")}</span>
+          </td>
+          <td>${formatDate(session.loginAt || session.createdAt)}</td>
+          <td>${formatTimeShort(session.lastSeen)}</td>
+          <td>${statusPill}</td>
+          <td>
+            <div class="actions">
+              ${
+                revoked
+                  ? `<button class="btn" data-restore-session="${escapeHTML(session.id)}">Restore</button>`
+                  : `<button class="btn danger" data-revoke-session="${escapeHTML(session.id)}">Revoke</button>`
+              }
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  async function revokeSession(sessionId) {
+    const session = sessions.find(s => s.id === sessionId);
+    if (!session) return;
+    const user = findUser(getUID(session));
+    const label = session.deviceName || session.deviceId || "this device";
+
+    if (!confirm(`Revoke session for "${label}"?\n\nUser will be logged out from this device on their next app check.`)) return;
+
+    try {
+      await updateDoc(doc(db, "sessions", sessionId), {
+        revoked: true,
+        revokedAt: serverTimestamp(),
+        revokedBy: "admin"
+      });
+
+      // Notify user
+      const uid = getUID(session);
+      if (uid) {
+        await addDoc(collection(db, "notifications"), {
+          uid,
+          title: "Session Revoked",
+          message: `Your session on "${label}" was revoked by admin. You will be logged out.`,
+          type: "session",
+          read: false,
+          createdAt: serverTimestamp()
+        });
+      }
+
+      toast("Session revoked ✓");
+    } catch (error) {
+      console.error(error);
+      toast("Revoke failed: " + (error.message || "try again"));
+    }
+  }
+
+  async function restoreSession(sessionId) {
+    try {
+      await updateDoc(doc(db, "sessions", sessionId), {
+        revoked: false,
+        revokedAt: null,
+        revokedBy: null,
+        lastSeen: serverTimestamp()
+      });
+      toast("Session restored ✓");
+    } catch (error) {
+      console.error(error);
+      toast("Restore failed");
+    }
+  }
+
+  /* ================= ANALYTICS (NEW) ================= */
+  function renderAnalytics() {
+    if (!$("todayViews")) return;
+
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const weekStart = todayStart - (6 * 86400000);
+
+    let todayViewsCount = 0;
+    let weekViewsCount = 0;
+    let totalViewsCount = views.length;
+
+    const todayVisitors = new Set();
+    const pageStats = {};      // pageName → { views: n, visitors: Set }
+    const dailyStats = {};     // yyyy-mm-dd → count
+
+    // Initialize last 7 days
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(todayStart - (i * 86400000));
+      const key = d.toISOString().slice(0, 10);
+      dailyStats[key] = 0;
+    }
+
+    views.forEach(v => {
+      const ts = convertDate(v.createdAt || v.timestamp);
+      if (!ts) return;
+      const t = ts.getTime();
+      const dayKey = ts.toISOString().slice(0, 10);
+
+      if (t >= todayStart) {
+        todayViewsCount++;
+        if (v.visitorId) todayVisitors.add(v.visitorId);
+      }
+      if (t >= weekStart) weekViewsCount++;
+
+      // Daily chart
+      if (dailyStats[dayKey] !== undefined) dailyStats[dayKey]++;
+
+      // Per-page
+      const page = v.page || v.pageName || "unknown";
+      if (!pageStats[page]) pageStats[page] = { views: 0, visitors: new Set() };
+      pageStats[page].views++;
+      if (v.visitorId) pageStats[page].visitors.add(v.visitorId);
+    });
+
+    $("todayViews").textContent = todayViewsCount;
+    $("todayVisitors").textContent = todayVisitors.size;
+    $("weekViews").textContent = weekViewsCount;
+    $("totalViews").textContent = totalViewsCount;
+
+    // Render bar chart
+    const chartEl = $("viewsChart");
+    const entries = Object.entries(dailyStats);
+    const maxVal = Math.max(1, ...entries.map(([, v]) => v));
+
+    if (!entries.length || maxVal === 0) {
+      chartEl.innerHTML = `<div class="empty" style="width:100%">No view data yet</div>`;
+    } else {
+      chartEl.innerHTML = entries.map(([day, count]) => {
+        const pct = (count / maxVal) * 100;
+        const label = new Date(day).toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+        return `
+          <div class="chart-bar" style="height:${Math.max(pct, 2)}%">
+            <span class="chart-bar-value">${count}</span>
+            <span class="chart-bar-label">${label}</span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // Render pages table
+    const pageEntries = Object.entries(pageStats)
+      .map(([page, stat]) => ({ page, views: stat.views, visitors: stat.visitors.size }))
+      .sort((a, b) => b.views - a.views)
+      .slice(0, 30);
+
+    if (!pageEntries.length) {
+      $("pagesTable").innerHTML = `
+        <tr><td colspan="3"><div class="empty">No page views yet</div></td></tr>
+      `;
+    } else {
+      $("pagesTable").innerHTML = pageEntries.map(p => `
+        <tr>
+          <td><b>${escapeHTML(p.page)}</b></td>
+          <td>${p.views}</td>
+          <td>${p.visitors}</td>
+        </tr>
+      `).join("");
+    }
   }
 
   /* ================= VERIFY / UNVERIFY ================= */
@@ -1690,7 +2137,8 @@
         "paymentRequests",
         "notifications",
         "supportMessages",
-        "posts"
+        "posts",
+        "sessions"
       ];
 
       for (const col of collectionsToClean) {
@@ -1943,20 +2391,20 @@
       }
 
       const postData = {
-  authorId: "admin",
-  authorName: "MeBook Official",
-  authorAvatar: "https://i.postimg.cc/g0pGNkxc/file-000000000bf482118c249820a099f2d4.png",
-  verified: true,
-  isOfficial: true,
-  caption: [caption, text].filter(Boolean).join("\n\n") || text,
-  movie: movie || "MeBook Official",
-  image: imageUrl,
-  likes: [],
-  reactions: {},       // 👈 শুধু এই line টা নতুন যোগ করবেন
-  comments: [],
-  shares: 0,
-  createdAt: serverTimestamp()
-};
+        authorId: "admin",
+        authorName: "MeBook Official",
+        authorAvatar: "https://i.postimg.cc/g0pGNkxc/file-000000000bf482118c249820a099f2d4.png",
+        verified: true,
+        isOfficial: true,
+        caption: [caption, text].filter(Boolean).join("\n\n") || text,
+        movie: movie || "MeBook Official",
+        image: imageUrl,
+        likes: [],
+        reactions: {},
+        comments: [],
+        shares: 0,
+        createdAt: serverTimestamp()
+      };
 
       const ref = await addDoc(collection(db, "posts"), postData);
       await setDoc(doc(db, "adminPosts", ref.id), {
@@ -2166,7 +2614,6 @@
     document.querySelectorAll(".nav-btn").forEach(button => {
       button.classList.toggle("active", button.dataset.page === page);
     });
-    // close menu
     $("topbarMenu").classList.remove("open");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -2194,6 +2641,10 @@
     if (countdownTimer !== null) {
       clearInterval(countdownTimer);
       countdownTimer = null;
+    }
+    if (onlineRefreshTimer !== null) {
+      clearInterval(onlineRefreshTimer);
+      onlineRefreshTimer = null;
     }
     location.reload();
   };
@@ -2235,6 +2686,13 @@
     const deletePostBtn = event.target.closest("[data-delete-post]");
     if (deletePostBtn) deleteMeBookPost(deletePostBtn.dataset.deletePost);
 
+    // 🆕 Session buttons
+    const revokeBtn = event.target.closest("[data-revoke-session]");
+    if (revokeBtn) revokeSession(revokeBtn.dataset.revokeSession);
+
+    const restoreBtn = event.target.closest("[data-restore-session]");
+    if (restoreBtn) restoreSession(restoreBtn.dataset.restoreSession);
+
     const notifyAuthorBtn = event.target.closest("[data-notify-author]");
     if (notifyAuthorBtn) {
       const uid = notifyAuthorBtn.dataset.notifyAuthor;
@@ -2273,6 +2731,7 @@
 
   $("userSearch").addEventListener("input", renderUsers);
   $("postSearch").addEventListener("input", renderMeBookPosts);
+  $("deviceSearch").addEventListener("input", renderDevices);
   $("newNotification").addEventListener("click", newNotification);
 
   $("modalClose").addEventListener("click", closeModal);
@@ -2321,9 +2780,128 @@
       clearInterval(countdownTimer);
       countdownTimer = null;
     }
+    if (onlineRefreshTimer !== null) {
+      clearInterval(onlineRefreshTimer);
+      onlineRefreshTimer = null;
+    }
     location.reload();
   });
 </script>
 
+<!--
+============================================================
+⚠️ IMPORTANT — MOVIESVERSEBD MAIN APP-এ এই CODE বসান
+============================================================
+
+এই code আপনার main app (MoviesVerseBD) এর index.html এ
+paste করলে Devices + Analytics page গুলো real-time data
+দেখাবে। এই code ছাড়া admin panel ফাঁকা থাকবে।
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+  import {
+    getFirestore, doc, setDoc, addDoc, collection,
+    serverTimestamp, onSnapshot
+  } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBtBaUSIlXwJDWytaiOfal3ha7OmZEwuYM",
+    authDomain: "mvbdminiapp.firebaseapp.com",
+    projectId: "mvbdminiapp",
+    storageBucket: "mvbdminiapp.firebasestorage.app",
+    messagingSenderId: "668051748254",
+    appId: "1:668051748254:web:d4804b68429d853a0c928f"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  // 👉 এই UID টা আপনার auth system থেকে নিন
+  // যদি Firebase Auth use না করেন, localStorage-এ নিজের uid রাখুন
+  const UID = localStorage.getItem("mvbd_uid") || "guest_" + Math.random().toString(36).slice(2, 10);
+
+  // -------- DEVICE ID (একবার generate হবে, save থাকবে) --------
+  let DEVICE_ID = localStorage.getItem("mvbd_device_id");
+  if (!DEVICE_ID) {
+    DEVICE_ID = "dev_" + Math.random().toString(36).slice(2, 12) + "_" + Date.now();
+    localStorage.setItem("mvbd_device_id", DEVICE_ID);
+  }
+
+  // -------- VISITOR ID (analytics এর জন্য) --------
+  let VISITOR_ID = localStorage.getItem("mvbd_visitor_id");
+  if (!VISITOR_ID) {
+    VISITOR_ID = "v_" + Math.random().toString(36).slice(2, 12);
+    localStorage.setItem("mvbd_visitor_id", VISITOR_ID);
+  }
+
+  // -------- DEVICE NAME detect --------
+  function getDeviceName() {
+    const ua = navigator.userAgent;
+    if (/Android/i.test(ua)) return "Android Device";
+    if (/iPhone/i.test(ua)) return "iPhone";
+    if (/iPad/i.test(ua)) return "iPad";
+    if (/Windows/i.test(ua)) return "Windows PC";
+    if (/Mac/i.test(ua)) return "Mac";
+    if (/Linux/i.test(ua)) return "Linux";
+    return "Unknown Device";
+  }
+  function getPlatform() {
+    const ua = navigator.userAgent;
+    if (/Android/i.test(ua)) return "Android";
+    if (/iPhone|iPad|iPod/i.test(ua)) return "iOS";
+    if (/Windows/i.test(ua)) return "Windows";
+    if (/Mac/i.test(ua)) return "macOS";
+    if (/Linux/i.test(ua)) return "Linux";
+    return "Web";
+  }
+
+  // -------- SESSION write (login) --------
+  const sessionId = UID + "_" + DEVICE_ID;
+  const sessionRef = doc(db, "sessions", sessionId);
+
+  await setDoc(sessionRef, {
+    uid: UID,
+    deviceId: DEVICE_ID,
+    deviceName: getDeviceName(),
+    platform: getPlatform(),
+    userAgent: navigator.userAgent,
+    loginAt: serverTimestamp(),
+    lastSeen: serverTimestamp(),
+    revoked: false
+  }, { merge: true });
+
+  // -------- HEARTBEAT (প্রতি ৬০ সেকেন্ডে lastSeen update) --------
+  setInterval(() => {
+    setDoc(sessionRef, { lastSeen: serverTimestamp() }, { merge: true }).catch(()=>{});
+    // user doc-এও lastSeen দিন (Users page-এ online দেখাতে)
+    setDoc(doc(db, "users", UID), {
+      lastSeen: serverTimestamp()
+    }, { merge: true }).catch(()=>{});
+  }, 60000);
+
+  // -------- REVOKE LISTENER (admin revoke করলে logout) --------
+  onSnapshot(sessionRef, (snap) => {
+    if (snap.exists() && snap.data().revoked === true) {
+      alert("এই device থেকে session revoke করা হয়েছে। আপনাকে logout করা হচ্ছে।");
+      localStorage.clear();
+      location.reload();
+    }
+  });
+
+  // -------- VIEW TRACKING (প্রতি page load-এ একবার) --------
+  const pageName = document.title || location.pathname || "home";
+  await addDoc(collection(db, "views"), {
+    uid: UID,
+    visitorId: VISITOR_ID,
+    page: pageName,
+    url: location.href,
+    deviceId: DEVICE_ID,
+    platform: getPlatform(),
+    createdAt: serverTimestamp()
+  }).catch(()=>{});
+
+</script>
+============================================================
+-->
+
 </body>
-  </html>
+</html>
