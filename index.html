@@ -140,12 +140,6 @@
       border: 1px solid rgba(99,164,255,.25);
     }
 
-    .btn.purple {
-      background: rgba(184,140,255,.10);
-      color: #cfb4ff;
-      border: 1px solid rgba(184,140,255,.25);
-    }
-
     .muted { color: var(--muted); font-size: 13px; }
 
     #app {
@@ -182,7 +176,6 @@
       color: var(--text);
       font-size: 20px;
       transition: .2s;
-      position: relative;
     }
 
     .menu-btn:hover { background: rgba(255,255,255,.11); }
@@ -414,7 +407,7 @@
       left: 50%;
       bottom: 10px;
       transform: translateX(-50%);
-      width: min(640px, calc(100% - 12px));
+      width: min(720px, calc(100% - 12px));
       display: flex;
       justify-content: space-around;
       padding: 8px;
@@ -530,7 +523,6 @@
       50% { opacity: .45; }
     }
 
-    /* 🆕 NEW USER ROW */
     .new-user-row {
       background: linear-gradient(90deg, rgba(46,232,121,.08), transparent);
       animation: newRowPulse 2s ease-in-out;
@@ -640,6 +632,21 @@
       font-weight: 700;
     }
 
+    .search-query-pill {
+      display: inline-block;
+      padding: 5px 11px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(46,232,121,.15), rgba(154,255,194,.08));
+      color: #9affc2;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid rgba(46,232,121,.25);
+      max-width: 320px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
     @media(max-width: 800px) {
       .stats, .analytics-grid { grid-template-columns: 1fr 1fr; }
       .form-grid { grid-template-columns: 1fr; }
@@ -654,7 +661,7 @@
       .section-head { align-items: flex-start; flex-direction: column; }
       .section-head .search { max-width: none; }
       .bottom-nav { bottom: 7px; }
-      .nav-btn { min-width: 52px; padding: 7px 4px; font-size: 9px; }
+      .nav-btn { min-width: 44px; padding: 7px 4px; font-size: 9px; }
       .nav-btn b { font-size: 16px; }
       .topbar-menu { left: 10px; right: 10px; max-width: none; }
     }
@@ -687,6 +694,10 @@
   </header>
 
   <div id="topbarMenu" class="topbar-menu">
+    <button class="topbar-menu-item" data-page="searchhistory">
+      <span class="topbar-menu-ico">🔍</span>
+      <span class="label">Search History</span>
+    </button>
     <button class="topbar-menu-item" data-page="subscriptions">
       <span class="topbar-menu-ico">◈</span>
       <span class="label">Subscriptions</span>
@@ -731,7 +742,54 @@
           <button class="btn secondary" data-page="users">Manage Users</button>
           <button class="btn secondary" data-page="devices">📱 Live Devices</button>
           <button class="btn secondary" data-page="analytics">📊 Analytics</button>
+          <button class="btn secondary" data-page="searchhistory">🔍 Search History</button>
           <button class="btn secondary" data-page="notifications">Send Notification</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEARCH HISTORY -->
+    <section id="searchhistory" class="view">
+      <div class="section-head">
+        <div>
+          <h2>🔍 Search History</h2>
+          <p class="muted">Logged-in user-দের search history (শুধু login করা user-দের দেখা যাবে)</p>
+        </div>
+        <input id="searchHistorySearch" class="field search" placeholder="Search by user name, query or ID">
+      </div>
+
+      <div class="stats" style="margin-top:0">
+        <div class="stat glass">
+          <small>Users with History</small>
+          <strong id="searchHistoryUsersCount">0</strong>
+        </div>
+        <div class="stat glass">
+          <small>Total Searches</small>
+          <strong id="searchHistoryTotalCount">0</strong>
+        </div>
+        <div class="stat glass">
+          <small>Top Query</small>
+          <strong id="searchHistoryTopQuery" style="font-size:14px;line-height:1.3">—</strong>
+        </div>
+        <div class="stat glass">
+          <small>Active Today</small>
+          <strong id="searchHistoryActiveToday">0</strong>
+        </div>
+      </div>
+
+      <div class="table-card glass" style="margin-top:16px">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Search Query</th>
+                <th>Time</th>
+                <th>User ID</th>
+              </tr>
+            </thead>
+            <tbody id="searchHistoryTable"></tbody>
+          </table>
         </div>
       </div>
     </section>
@@ -1051,6 +1109,7 @@
     <button class="nav-btn" data-page="users"><b>♙</b>Users</button>
     <button class="nav-btn" data-page="devices"><b>📱</b>Devices</button>
     <button class="nav-btn" data-page="analytics"><b>📊</b>Stats</button>
+    <button class="nav-btn" data-page="searchhistory"><b>🔍</b>Search</button>
   </nav>
 </div>
 
@@ -1136,12 +1195,12 @@
   let mebookPosts = [];
   let sessions = [];
   let views = [];
-  let currentFile = null;
+  let searchHistory = [];
 
   let unsubscribeFunctions = [];
   let countdownTimer = null;
   let onlineRefreshTimer = null;
-  let timeAgoTimer = null;   // 🆕 for updating "X seconds ago" text
+  let timeAgoTimer = null;
 
   const $ = (id) => document.getElementById(id);
 
@@ -1169,7 +1228,6 @@
     return date.toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
   }
 
-  /* 🆕 TIME AGO — "just now", "5s ago", "2m ago", "3h ago" */
   function formatTimeAgo(value) {
     const date = convertDate(value);
     if (!date) return "unknown";
@@ -1289,7 +1347,8 @@
       listenCollection("supportMessages", data => { supportMessages = data; renderAll(); }),
       listenCollection("posts", data => { mebookPosts = data; renderAll(); }),
       listenCollection("sessions", data => { sessions = data; renderAll(); }),
-      listenCollection("views", data => { views = data; renderAnalytics(); })
+      listenCollection("views", data => { views = data; renderAnalytics(); }),
+      listenCollection("searchHistory", data => { searchHistory = data; renderSearchHistory(); })
     );
 
     onSnapshot(doc(db, "settings", "mvbd"), snapshot => {
@@ -1311,7 +1370,6 @@
       renderDevices();
     }, 30000);
 
-    /* 🆕 Update "X ago" text every 5 seconds so it counts up live */
     if (timeAgoTimer !== null) clearInterval(timeAgoTimer);
     timeAgoTimer = setInterval(updateTimeAgoElements, 5000);
   }
@@ -1347,6 +1405,110 @@
     const onlineNow = users.filter(isUserOnline).length;
     if ($("onlineCount")) $("onlineCount").textContent = onlineNow;
     if ($("onlineDevicesCount")) $("onlineDevicesCount").textContent = onlineNow;
+  }
+
+  /* ============================================
+     🆕 SEARCH HISTORY — Kon user kon movie search korche
+     ============================================ */
+  function renderSearchHistory() {
+    if (!$("searchHistoryTable")) return;
+
+    const q = ($("searchHistorySearch")?.value || "").toLowerCase();
+
+    const rows = [];
+    let totalSearches = 0;
+    const allQueries = {};
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const todayMs = todayStart.getTime();
+    let activeToday = 0;
+
+    searchHistory.forEach(entry => {
+      const items = Array.isArray(entry.items) ? entry.items : [];
+      const userId = entry.userId || entry.id || "";
+      const user = findUser(userId);
+      const userName = entry.userName || user.name || user.email || userId || "Unknown";
+
+      let userActiveToday = false;
+
+      items.forEach(item => {
+        if (!item || !item.query) return;
+
+        totalSearches++;
+        allQueries[item.query] = (allQueries[item.query] || 0) + 1;
+
+        if (item.timestamp && item.timestamp >= todayMs) {
+          userActiveToday = true;
+        }
+
+        const text = `${userName} ${item.query} ${userId}`.toLowerCase();
+        if (text.includes(q)) {
+          rows.push({
+            userName,
+            userId,
+            query: item.query,
+            timestamp: item.timestamp,
+          });
+        }
+      });
+
+      if (userActiveToday) activeToday++;
+    });
+
+    const usersCount = searchHistory.filter(
+      e => Array.isArray(e.items) && e.items.length > 0
+    ).length;
+
+    if ($("searchHistoryUsersCount"))
+      $("searchHistoryUsersCount").textContent = usersCount;
+    if ($("searchHistoryTotalCount"))
+      $("searchHistoryTotalCount").textContent = totalSearches;
+    if ($("searchHistoryActiveToday"))
+      $("searchHistoryActiveToday").textContent = activeToday;
+
+    if ($("searchHistoryTopQuery")) {
+      const topEntry = Object.entries(allQueries).sort((a, b) => b[1] - a[1])[0];
+      $("searchHistoryTopQuery").textContent = topEntry
+        ? `${topEntry[0]} (${topEntry[1]})`
+        : "—";
+    }
+
+    rows.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+    if (!rows.length) {
+      $("searchHistoryTable").innerHTML = `
+        <tr><td colspan="4">
+          <div class="empty">
+            No search history yet.<br><br>
+            <small>⚠️ শুধু logged-in user-দের history এখানে দেখা যাবে। Anonymous user-দের history শুধু তাদের browser-এ localStorage-এ থাকে, server-এ যায় না।</small>
+          </div>
+        </td></tr>
+      `;
+      return;
+    }
+
+    $("searchHistoryTable").innerHTML = rows.slice(0, 300).map(row => {
+      const date = new Date(row.timestamp);
+      const ago = formatTimeAgo(row.timestamp);
+      return `
+        <tr>
+          <td>
+            <b>${escapeHTML(row.userName)}</b>
+          </td>
+          <td>
+            <span class="search-query-pill">${escapeHTML(row.query)}</span>
+          </td>
+          <td>
+            <span class="time-ago ${timeAgoClass(row.timestamp)}" data-timeago="${date.toISOString()}">${ago}</span>
+            <br>
+            <span class="muted" style="font-size:11px">${formatDate(date)}</span>
+          </td>
+          <td>
+            <span class="muted" style="font-size:11px">${escapeHTML(row.userId.slice(0, 20))}...</span>
+          </td>
+        </tr>
+      `;
+    }).join("");
   }
 
   function getExpiryForUser(user) {
@@ -1396,13 +1558,9 @@
     });
   }
 
-  /* ============================================
-     🆕 USERS — LATEST SIGNUP সবার উপরে
-     ============================================ */
   function renderUsers() {
     const q = ($("userSearch").value || "").toLowerCase();
 
-    // Signup time helper — multiple field names handle করে
     const getSignupTime = (user) =>
       user.createdAt ||
       user.signupAt ||
@@ -1413,11 +1571,10 @@
       user.updatedAt ||
       null;
 
-    // 🔽 LATEST SIGNUP আগে দেখানোর জন্য sort
     const sorted = [...users].sort((a, b) => {
       const aTime = convertDate(getSignupTime(a))?.getTime() || 0;
       const bTime = convertDate(getSignupTime(b))?.getTime() || 0;
-      return bTime - aTime; // descending — newest first
+      return bTime - aTime;
     });
 
     const filtered = sorted.filter(user => {
@@ -2236,7 +2393,8 @@
         "notifications",
         "supportMessages",
         "posts",
-        "sessions"
+        "sessions",
+        "searchHistory"
       ];
 
       for (const col of collectionsToClean) {
@@ -2728,18 +2886,9 @@
       try { unsubscribe(); } catch {}
     });
     unsubscribeFunctions = [];
-    if (countdownTimer !== null) {
-      clearInterval(countdownTimer);
-      countdownTimer = null;
-    }
-    if (onlineRefreshTimer !== null) {
-      clearInterval(onlineRefreshTimer);
-      onlineRefreshTimer = null;
-    }
-    if (timeAgoTimer !== null) {
-      clearInterval(timeAgoTimer);
-      timeAgoTimer = null;
-    }
+    if (countdownTimer !== null) clearInterval(countdownTimer);
+    if (onlineRefreshTimer !== null) clearInterval(onlineRefreshTimer);
+    if (timeAgoTimer !== null) clearInterval(timeAgoTimer);
     location.reload();
   };
 
@@ -2826,6 +2975,10 @@
   $("deviceSearch").addEventListener("input", renderDevices);
   $("newNotification").addEventListener("click", newNotification);
 
+  if ($("searchHistorySearch")) {
+    $("searchHistorySearch").addEventListener("input", renderSearchHistory);
+  }
+
   $("modalClose").addEventListener("click", closeModal);
   $("modal").addEventListener("click", event => {
     if (event.target.id === "modal") closeModal();
@@ -2865,21 +3018,12 @@
       try { unsubscribe(); } catch {}
     });
     unsubscribeFunctions = [];
-    if (countdownTimer !== null) {
-      clearInterval(countdownTimer);
-      countdownTimer = null;
-    }
-    if (onlineRefreshTimer !== null) {
-      clearInterval(onlineRefreshTimer);
-      onlineRefreshTimer = null;
-    }
-    if (timeAgoTimer !== null) {
-      clearInterval(timeAgoTimer);
-      timeAgoTimer = null;
-    }
+    if (countdownTimer !== null) clearInterval(countdownTimer);
+    if (onlineRefreshTimer !== null) clearInterval(onlineRefreshTimer);
+    if (timeAgoTimer !== null) clearInterval(timeAgoTimer);
     location.reload();
   });
 </script>
 
 </body>
-</html>
+  </html>
