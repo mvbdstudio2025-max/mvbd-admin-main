@@ -1196,6 +1196,7 @@
   let sessions = [];
   let views = [];
   let searchHistory = [];
+  let currentFile = null; // MeBook post image (FIX: was never declared)
 
   let unsubscribeFunctions = [];
   let countdownTimer = null;
@@ -2660,10 +2661,14 @@
       };
 
       const ref = await addDoc(collection(db, "posts"), postData);
-      await setDoc(doc(db, "adminPosts", ref.id), {
-        ...postData,
-        postId: ref.id
-      });
+      try {
+        await setDoc(doc(db, "adminPosts", ref.id), {
+          ...postData,
+          postId: ref.id
+        });
+      } catch (e) {
+        console.warn("adminPosts copy failed (post already published):", e);
+      }
 
       $("mbPostMovie").value = "";
       $("mbPostCaption").value = "";
@@ -3026,4 +3031,4 @@
 </script>
 
 </body>
-  </html>
+</html>
