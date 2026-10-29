@@ -665,7 +665,18 @@
       .nav-btn b { font-size: 16px; }
       .topbar-menu { left: 10px; right: 10px; max-width: none; }
     }
-  </style>
+  
+    /* ===== YouTube auto-post ===== */
+    .yt-ch { display:flex; align-items:center; gap:12px; padding:12px; margin-top:10px;
+      border-radius:16px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.07); flex-wrap:wrap; }
+    .yt-ch img { width:46px; height:46px; border-radius:50%; object-fit:cover; background:#1f2937; flex-shrink:0; }
+    .yt-ch-info { flex:1; min-width:180px; }
+    .yt-ch-info b { display:block; font-size:14px; }
+    .yt-ch-info .muted { word-break:break-all; }
+    .yt-ch.paused { opacity:.6; }
+    .yt-tag { display:inline-block; padding:2px 7px; border-radius:6px; font-size:11px; font-weight:700;
+      background:rgba(255,59,59,.14); color:#ff8a8a; }
+</style>
 </head>
 
 <body>
@@ -843,6 +854,38 @@
           </div>
           <div class="muted" style="margin-top:6px" id="mbUploadLabel">Uploading...</div>
         </div>
+      </div>
+
+      <div class="dashboard-card glass" id="ytCard">
+        <h3>▶ YouTube Auto Post</h3>
+        <p class="muted" style="margin-top:6px">
+          Add a YouTube channel link. Every new <b>Short</b> or <b>video</b> uploaded to that channel is posted on MeBook automatically
+          (title + description become the caption).
+        </p>
+
+        <div class="form-grid" style="margin-top:14px">
+          <label>
+            Channel link
+            <input id="ytChannelUrl" class="field" placeholder="https://www.youtube.com/@channelname">
+          </label>
+          <label>
+            Old videos on first sync
+            <select id="ytInitialImport" class="field">
+              <option value="0">Only new uploads from now</option>
+              <option value="3">Import latest 3 too</option>
+              <option value="5">Import latest 5 too</option>
+              <option value="15">Import latest 15 too</option>
+            </select>
+          </label>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
+          <button id="ytAddBtn" class="btn" type="button">➕ Add Channel</button>
+          <button id="ytSyncBtn" class="btn secondary" type="button">🔄 Sync Now</button>
+          <button id="ytConfigBtn" class="btn secondary" type="button">⚙ Sync Settings</button>
+        </div>
+
+        <div id="ytChannelList"></div>
       </div>
 
       <div class="section-head" style="margin-top:22px">
@@ -1193,6 +1236,7 @@
   let notifications = [];
   let supportMessages = [];
   let mebookPosts = [];
+  let youtubeChannels = [];
   let sessions = [];
   let views = [];
   let searchHistory = [];
@@ -1347,6 +1391,7 @@
       listenCollection("notifications", data => { notifications = data; renderAll(); }),
       listenCollection("supportMessages", data => { supportMessages = data; renderAll(); }),
       listenCollection("posts", data => { mebookPosts = data; renderAll(); }),
+      listenCollection("youtubeChannels", data => { youtubeChannels = data; renderYoutubeChannels(); }),
       listenCollection("sessions", data => { sessions = data; renderAll(); }),
       listenCollection("views", data => { views = data; renderAnalytics(); }),
       listenCollection("searchHistory", data => { searchHistory = data; renderSearchHistory(); })
@@ -1390,6 +1435,7 @@
     renderNotifications();
     renderSupport();
     renderMeBookPosts();
+    renderYoutubeChannels();
     renderDevices();
     updateStats();
     updateAllCountdowns();
@@ -2558,7 +2604,11 @@
                 : `<span class="muted">Unverified</span>`
             }
           </td>
-          <td>${escapeHTML(post.movie || "—")}</td>
+          <td>${
+            post.type === "youtube"
+              ? `<span class="yt-tag">▶ ${post.youtube && post.youtube.isShort ? "Short" : "Video"}</span>`
+              : escapeHTML(post.movie || "—")
+          }</td>
           <td style="max-width:240px">${escapeHTML((post.caption || "").slice(0, 90))}${
             (post.caption || "").length > 90 ? "..." : ""
           }</td>
@@ -2692,6 +2742,206 @@
     $("mbPreviewImg").src = "";
     $("mbUploadProgress").style.display = "none";
   }
+
+  /* ============================================================
+     YOUTUBE AUTO POST
+     ============================================================ */
+
+  function parseYouTubeInput(raw) {
+    let s = String(raw || "").trim();
+    if (!s) return null;
+    if (/^UC[\w-]{22}$/.test(s)) {
+      return { channelId: s, url: "https://www.youtube.com/channel/" + s };
+    }
+    if (/^@[\w.\-]+$/.test(s)) {
+      return { channelId: "", url: "https://www.youtube.com/" + s };
+    }
+    if (!/^https?:\/\//i.test(s)) s = "https://" + s;
+    let u;
+    try { u = new URL(s); } catch { return null; }
+    const host = u.hostname.toLowerCase();
+    if (host !== "youtube.com" && !host.endsWith(".youtube.com")) return null;
+    const path = decodeURIComponent(u.pathname);
+    let m = path.match(/\/channel\/(UC[\w-]{22})/);
+    if (m) return { channelId: m[1], url: "https://www.youtube.com/channel/" + m[1] };
+    m = path.match(/\/(@[\w.\-]+)/);
+    if (m) return { channelId: "", url: "https://www.youtube.com/" + m[1] };
+    m = path.match(/^\/(c|user)\/([^/]+)/);
+    if (m) return { channelId: "", url: "https://www.youtube.com/" + m[1] + "/" + m[2] };
+    return null;
+  }
+
+  function getSyncConfig() {
+    try {
+      return {
+        url: localStorage.getItem("mvbd_yt_sync_url") || "",
+        key: localStorage.getItem("mvbd_yt_sync_key") || ""
+      };
+    } catch { return { url: "", key: "" }; }
+  }
+
+  function configureSync() {
+    const cur = getSyncConfig();
+    let url = prompt(
+      "MeBook site URL (where the /api/sync-youtube route is hosted)\ne.g. https://your-site.vercel.app",
+      cur.url.replace(/\/api\/sync-youtube$/, "")
+    );
+    if (url === null) return false;
+    url = url.trim().replace(/\/+$/, "");
+    if (!/^https?:\/\//i.test(url)) { toast("Invalid URL"); return false; }
+    const key = prompt("Sync secret key (same as SYNC_SECRET in Vercel)", cur.key);
+    if (key === null) return false;
+    try {
+      localStorage.setItem("mvbd_yt_sync_url", url.replace(/\/api\/sync-youtube$/, "") + "/api/sync-youtube");
+      localStorage.setItem("mvbd_yt_sync_key", key.trim());
+    } catch {}
+    toast("Sync settings saved");
+    return true;
+  }
+
+  async function runYoutubeSync(silent) {
+    let cfg = getSyncConfig();
+    if (!cfg.url || !cfg.key) {
+      if (silent) return;
+      if (!configureSync()) return;
+      cfg = getSyncConfig();
+    }
+    const btn = $("ytSyncBtn");
+    if (!silent) { btn.disabled = true; btn.textContent = "Syncing..."; }
+    try {
+      const res = await fetch(cfg.url, { method: "POST", headers: { "x-sync-key": cfg.key } });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || ("HTTP " + res.status));
+      toast(`Sync done ✓ ${data.imported || 0} new post(s)`);
+    } catch (e) {
+      console.error(e);
+      if (!silent) toast("Sync failed: " + (e.message || "check Sync Settings"));
+    } finally {
+      if (!silent) { btn.disabled = false; btn.textContent = "🔄 Sync Now"; }
+    }
+  }
+
+  async function addYoutubeChannel() {
+    const parsed = parseYouTubeInput($("ytChannelUrl").value);
+    if (!parsed) { toast("Paste a valid YouTube channel link"); return; }
+
+    const dup = youtubeChannels.find(c =>
+      (parsed.channelId && c.channelId === parsed.channelId) || c.url === parsed.url
+    );
+    if (dup) { toast("This channel is already added"); return; }
+
+    const btn = $("ytAddBtn");
+    btn.disabled = true;
+    try {
+      await addDoc(collection(db, "youtubeChannels"), {
+        url: parsed.url,
+        channelId: parsed.channelId,
+        name: "",
+        avatar: "",
+        enabled: true,
+        status: "pending",
+        error: "",
+        initialImport: Number($("ytInitialImport").value) || 0,
+        lastSyncAt: null,
+        importedCount: 0,
+        addedAt: serverTimestamp()
+      });
+      $("ytChannelUrl").value = "";
+      toast("Channel added ✓");
+      runYoutubeSync(true);
+    } catch (e) {
+      console.error(e);
+      toast("Failed to add channel");
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function renderYoutubeChannels() {
+    const box = $("ytChannelList");
+    if (!box) return;
+    if (!youtubeChannels.length) {
+      box.innerHTML = `<div class="muted" style="margin-top:14px">No YouTube channels added yet.</div>`;
+      return;
+    }
+    const sorted = [...youtubeChannels].sort(
+      (a, b) => (convertDate(b.addedAt) || 0) - (convertDate(a.addedAt) || 0)
+    );
+    box.innerHTML = sorted.map(c => {
+      const enabled = c.enabled !== false;
+      const posts = mebookPosts.filter(p => p.type === "youtube" && p.youtube && c.channelId && p.youtube.channelId === c.channelId);
+      const shorts = posts.filter(p => p.youtube.isShort).length;
+      let pill;
+      if (!enabled) pill = `<span class="pill">⏸ Paused</span>`;
+      else if (c.status === "ok") pill = `<span class="pill green">● Active</span>`;
+      else if (c.status === "error") pill = `<span class="pill red">⚠ Error</span>`;
+      else pill = `<span class="pill yellow">⏳ Waiting for sync</span>`;
+      const avatar = c.avatar || `https://ui-avatars.com/api/?background=ef4444&color=fff&name=${encodeURIComponent(c.name || "YT")}`;
+      return `
+        <div class="yt-ch ${enabled ? "" : "paused"}">
+          <img src="${escapeHTML(avatar)}" alt="">
+          <div class="yt-ch-info">
+            <b>${escapeHTML(c.name || "Resolving channel...")}</b>
+            <div class="muted">${escapeHTML(c.url || "")}</div>
+            <div style="margin-top:6px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+              ${pill}
+              <span class="muted">Posts: ${posts.length} (${shorts} shorts)</span>
+              <span class="muted">Last sync: ${c.lastSyncAt ? formatTimeAgo(c.lastSyncAt) : "—"}</span>
+            </div>
+            ${c.status === "error" && c.error ? `<div class="muted" style="color:#ff9ca5;margin-top:4px">${escapeHTML(c.error)}</div>` : ""}
+          </div>
+          <div class="actions">
+            <button class="btn ${enabled ? "warning" : ""}" data-yt-toggle="${escapeHTML(c.id)}">${enabled ? "⏸ Pause" : "▶ Resume"}</button>
+            <button class="btn danger" data-yt-remove="${escapeHTML(c.id)}">🗑 Remove</button>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  async function toggleYoutubeChannel(id) {
+    const c = youtubeChannels.find(x => x.id === id);
+    if (!c) return;
+    try {
+      await updateDoc(doc(db, "youtubeChannels", id), { enabled: c.enabled === false });
+      toast(c.enabled === false ? "Channel resumed" : "Channel paused");
+    } catch (e) { console.error(e); toast("Update failed"); }
+  }
+
+  async function removeYoutubeChannel(id) {
+    const c = youtubeChannels.find(x => x.id === id);
+    if (!c) return;
+    if (!confirm(`Remove channel "${c.name || c.url}"?`)) return;
+    const delPosts = confirm("Also delete ALL MeBook posts from this channel?\n\nOK = delete posts too\nCancel = keep the posts");
+    try {
+      let deleted = 0;
+      if (delPosts && c.channelId) {
+        const snap = await getDocs(query(collection(db, "posts"), where("youtube.channelId", "==", c.channelId)));
+        let batch = writeBatch(db);
+        let n = 0;
+        for (const d of snap.docs) {
+          batch.delete(d.ref);
+          batch.delete(doc(db, "adminPosts", d.id));
+          n++; deleted++;
+          if (n >= 200) { await batch.commit(); batch = writeBatch(db); n = 0; }
+        }
+        if (n > 0) await batch.commit();
+      }
+      await deleteDoc(doc(db, "youtubeChannels", id));
+      toast("Channel removed" + (delPosts ? ` · ${deleted} post(s) deleted` : ""));
+    } catch (e) { console.error(e); toast("Remove failed"); }
+  }
+
+  $("ytAddBtn").addEventListener("click", addYoutubeChannel);
+  $("ytSyncBtn").addEventListener("click", () => runYoutubeSync(false));
+  $("ytConfigBtn").addEventListener("click", configureSync);
+  $("ytChannelUrl").addEventListener("keydown", e => { if (e.key === "Enter") addYoutubeChannel(); });
+  $("ytChannelList").addEventListener("click", e => {
+    const t = e.target.closest("[data-yt-toggle]");
+    if (t) toggleYoutubeChannel(t.dataset.ytToggle);
+    const r = e.target.closest("[data-yt-remove]");
+    if (r) removeYoutubeChannel(r.dataset.ytRemove);
+  });
 
   function renderNotifications() {
     const sorted = [...notifications].sort(
